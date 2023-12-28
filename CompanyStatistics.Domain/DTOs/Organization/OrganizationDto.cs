@@ -1,32 +1,34 @@
-﻿namespace CompanyStatistics.Domain.DTOs.Organization
+﻿using CsvHelper.Configuration.Attributes;
+
+namespace CompanyStatistics.Domain.DTOs.Organization
 {
     public class OrganizationDto
     {
-        //[Name("Index")]
+        [Name("Index")]
         public int Index { get; set; }
 
-        //[Name("Organization Id")]
+        [Name("Organization Id")]
         public string OrganizationId { get; set; }
 
-        //[Name("Name")]
+        [Name("Name")]
         public string Name { get; set; }
 
-        //[Name("Website")]
+        [Name("Website")]
         public string Website { get; set; }
 
-        //[Name("Country")]
+        [Name("Country")]
         public string Country { get; set; }
 
-        //[Name("Description")]
+        [Name("Description")]
         public string Description { get; set; }
 
-        //[Name("Founded")]
+        [Name("Founded")]
         public string Founded { get; set; }
 
-        //[Name("Industry")]
+        [Name("Industry")]
         public string Industry { get; set; }
 
-        //[Name("Number of employees")]
+        [Name("Number of employees")]
         public int NumberOfEmployees { get; set; }
     }
 }

@@ -8,11 +8,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Autofac" Version="7.1.0" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
+    <ProjectReference Include="..\CompanyStatistics.Domain.Services\CompanyStatistics.Domain.Services.csproj" />
+    <ProjectReference Include="..\CompanyStatistics.Domain\CompanyStatistics.Domain.csproj" />
+    <ProjectReference Include="..\CompanyStatistics.Infrastructure\CompanyStatistics.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

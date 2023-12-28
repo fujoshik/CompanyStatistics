@@ -1,11 +1,27 @@
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using CompanyStatistics.API.AutofacModules;
+using CompanyStatistics.API.Extensions;
+using CompanyStatistics.Domain.Paths;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Host
+    .UseServiceProviderFactory(new AutofacServiceProviderFactory())
+    .ConfigureContainer<ContainerBuilder>(autofacBuilder =>
+    {
+        autofacBuilder.RegisterModule<ServicesModule>();
+        autofacBuilder.RegisterModule<RepositoriesModule>();
+    });
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+builder.Services.Configure<FilesFolderPath>(builder.Configuration.GetSection(nameof(FilesFolderPath)));
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddCompanyStatisticsAutomapper();
 
 var app = builder.Build();
 
