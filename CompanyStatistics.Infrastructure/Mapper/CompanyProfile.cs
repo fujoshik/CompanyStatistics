@@ -9,7 +9,10 @@ namespace CompanyStatistics.Infrastructure.Mapper
     {
         public CompanyProfile()
         {
-            CreateMap<OrganizationDto, CompanyRequestDto>();
+            CreateMap<OrganizationDto, CompanyRequestDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(x => x.OrganizationId))
+                .ForMember(dest => dest.CompanyIndex, opt => opt.MapFrom(x => x.Index));
+
             CreateMap<Company, CompanyResponseDto>();
         }
     }

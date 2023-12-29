@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CompanyStatistics.Domain.Abstraction.Services;
 using CompanyStatistics.Domain.DTOs.Company;
+using CompanyStatistics.Domain.DTOs.File;
 using CompanyStatistics.Domain.DTOs.Organization;
 using CompanyStatistics.Domain.Paths;
 using CsvHelper;
@@ -8,6 +9,7 @@ using CsvHelper.Configuration;
 using Microsoft.Extensions.Options;
 using OfficeOpenXml;
 using System.Globalization;
+using System.IO;
 using System.Text.RegularExpressions;
 using LicenseContext = OfficeOpenXml.LicenseContext;
 
@@ -18,14 +20,25 @@ namespace CompanyStatistics.Domain.Services
         private readonly string _folderPath;
         private readonly IMapper _mapper;
         private readonly ICompanyService _companyService;
+        private readonly IMongoDbService _mongoDbService;
 
         public ReadDataService(IOptions<FilesFolderPath> folderPath,
                                IMapper mapper,
-                               ICompanyService companyService)
+                               ICompanyService companyService,
+                               IMongoDbService mongoDbService)
         {
             _folderPath = folderPath.Value.Path;
             _mapper = mapper;
             _companyService = companyService;
+            _mongoDbService = mongoDbService;
+        }
+
+        private void MoveFile(string file)
+        {
+            if (File.Exists(file))
+            {
+                File.Move(file, _folderPath + $"\\ReadFiles\\{Path.GetFileName(file)}");
+            }
         }
 
         public async Task ReadFilesAsync()
@@ -38,34 +51,33 @@ namespace CompanyStatistics.Domain.Services
                 {
                     await ReadCsvFileAsync(file);
                 }
-                await ReadFileAsync(file);
+                else
+                {
+                    await ReadFileAsync(file);
+                }
+
+                MoveFile(file);
             }
         }
 
         public async Task ReadCsvFileAsync(string fileName)
         {
-            List<OrganizationDto> records = new List<OrganizationDto>();
+            List<OrganizationDto> organizations = new List<OrganizationDto>();
 
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
                 Delimiter = ",",
-                HasHeaderRecord = true
+                HasHeaderRecord = false
             };
 
-            using (var reader = new StreamReader(_folderPath + fileName))
-            using (var csv = new CsvReader(reader, config))
+            using var streamReader = File.OpenText(fileName);
+            using var csv = new CsvReader(streamReader, CultureInfo.InvariantCulture);
+
+            var records = csv.GetRecords<OrganizationDto>();
+
+            foreach (var record in records)
             {
-                csv.Context.RegisterClassMap<OrganizationMap>();
-
-                csv.ReadHeader();
-                while (csv.Read())
-                {
-                    var record = csv.GetRecord<OrganizationDto>();
-                    records.Add(record);
-                }
-
-                foreach (var record in records)
-                    Console.WriteLine(record);
+                await InsertCompanyAndSaveReadFile(fileName, record);
             }
         }
 
@@ -76,12 +88,21 @@ namespace CompanyStatistics.Domain.Services
 
             using (ExcelPackage package = new ExcelPackage(new FileInfo(path)))
             {
+                int startIndex = 2;
+
                 var sheet = package.Workbook.Worksheets["Лист1"];
                 var result = sheet.Cells[1, 1].Value.ToString().Split(",");
 
-                for (int i = 2; i < sheet.Dimension.Rows; i++)
+                var file = await _mongoDbService.GetFileByNameAsync(path);
+
+                if (file != null)
                 {
-                    var row = Regex.Split(sheet.Cells[i, 1].Value.ToString().Replace("\"", ""), @",(?!\s)");
+                    startIndex = file.Index + 1;
+                }
+
+                for (int i = startIndex; i <= sheet.Dimension.Rows; i++)
+                {
+                    var row = Regex.Split(sheet.Cells[i, 1].Value.ToString().Replace("'", "''").Replace("\"", ""), @",(?!\s)");
                     var organization = new OrganizationDto()
                     {
                         Index = int.Parse(row[0]),
@@ -96,9 +117,37 @@ namespace CompanyStatistics.Domain.Services
                     };
                     organizationList.Add(organization);
 
-                    var companyRequest = _mapper.Map<CompanyRequestDto>(organization);
+                    await InsertCompanyAndSaveReadFile(path, organization);
+                }
+            }
+        }
 
-                    await _companyService.CreateAsync(companyRequest);
+        private async Task InsertCompanyAndSaveReadFile(string path, OrganizationDto organization)
+        {
+            var companyRequest = _mapper.Map<CompanyRequestDto>(organization);
+
+            await _companyService.CreateAsync(companyRequest);
+
+            await SaveReadDocumentNameAndIndex(path, organization.Index);
+        }
+
+        private async Task SaveReadDocumentNameAndIndex(string name, int index)
+        {
+            if (index == 1)
+            {
+                await _mongoDbService.CreateFileAsync(new FileDto() { FileName = name, Index = index });
+            }
+            else
+            {
+                var file = await _mongoDbService.GetFileByNameAsync(name);
+
+                if (file == null)
+                {
+                    await _mongoDbService.CreateFileAsync(new FileDto() { FileName = name, Index = index });
+                }
+                else
+                {
+                    await _mongoDbService.UpdateFileIndexAsync(name, index);
                 }
             }
         }

@@ -3,9 +3,9 @@ using CompanyStatistics.Domain.Exceptions;
 using CompanyStatistics.Domain.Pagination;
 using CompanyStatistics.Infrastructure.Entities;
 using CompanyStatistics.Infrastructure.Extensions;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using System.Data;
-using System.Data.SqlClient;
 using System.Text;
 
 namespace CompanyStatistics.Infrastructure.Repositories
@@ -119,10 +119,10 @@ namespace CompanyStatistics.Infrastructure.Repositories
             {
                 connection.Open();
                 SqlCommand cmd = new SqlCommand(
-                    "USE CompanyStatisticsDB; DECLARE @MyTableVar table([testID] [uniqueidentifier]); " +
+                    "USE CompanyStatisticsDB; DECLARE @MyTableVar table([testID] [varchar](250)); " +
                     $"INSERT INTO {TableName} ({columnNames}) " +
                     "OUTPUT INSERTED.Id INTO @MyTableVar " +
-                    $"VALUES ({values}) " +
+                    $"VALUES ({values}) ;" +
                     $"SELECT * FROM {TableName} WHERE Id = CAST((SELECT TOP 1 testID from @MyTableVar) AS nvarchar(250))", connection);
                 using (var reader = await cmd.ExecuteReaderAsync())
                 {
@@ -207,7 +207,7 @@ namespace CompanyStatistics.Infrastructure.Repositories
             using (var connection = new SqlConnection(_dbConnectionString))
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand($"DECLARE @MyTableVar table([testID] [uniqueidentifier]); " +
+                SqlCommand cmd = new SqlCommand($"DECLARE @MyTableVar table([testID] [varchar](250)); " +
                     $"USE CompanyStatisticsDB; UPDATE {TableName} SET {valuesToProps} WHERE Id = '{id}'" +
                     $"OUTPUT INSERTED.Id INTO @MyTableVar " +
                     $"SELECT * FROM {TableName} WHERE Id = CAST((SELECT TOP 1 testID from @MyTableVar) AS nvarchar(250))", connection);

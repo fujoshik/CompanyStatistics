@@ -1,4 +1,5 @@
 ﻿using CompanyStatistics.Domain.Abstraction.Repositories;
+using CompanyStatistics.Domain.DTOs.Company;
 using CompanyStatistics.Domain.Enums;
 using CompanyStatistics.Infrastructure.Entities;
 using Microsoft.Extensions.Configuration;
@@ -16,13 +17,17 @@ namespace CompanyStatistics.Infrastructure.Repositories
 
         protected override TOutput DataRowToEntity<TOutput>(DataRow dataRow)
         {
-            var result = new AccountResponseDto()
+            var result = new CompanyResponseDto()
             {
-                Id = Guid.Parse(dataRow["Id"].ToString()),
-                Email = dataRow["Email"].ToString(),
-                WalletId = Guid.Parse(dataRow["WalletId"].ToString()),
-                Role = (Role)int.Parse(dataRow["Role"].ToString()),
-                DateToDelete = dataRow["DateToDelete"].ToString() == null ? null : DateTime.Parse(dataRow["DateToDelete"].ToString())
+                Id = dataRow["Id"].ToString(),
+                CompanyIndex = int.Parse(dataRow["CompanyIndex"].ToString()),
+                Name = dataRow["Name"].ToString(),
+                Website = dataRow["Website"].ToString(),
+                Country = dataRow["Country"].ToString(),
+                Description = dataRow["Description"].ToString(),
+                Founded = int.Parse(dataRow["Founded"].ToString()),
+                Industry = dataRow["Industry"].ToString(),
+                NumberOfEmployees = int.Parse(dataRow["NumberOfEmployees"].ToString())
             };
 
             return (TOutput)Convert.ChangeType(result, typeof(TOutput));

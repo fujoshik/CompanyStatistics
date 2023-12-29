@@ -2,6 +2,7 @@
 {
     public class CompanyResponseDto : BaseResponseDto
     {
+        public int CompanyIndex { get; set; }
         public string Name { get; set; }
         public string Website { get; set; }
         public string Country { get; set; }

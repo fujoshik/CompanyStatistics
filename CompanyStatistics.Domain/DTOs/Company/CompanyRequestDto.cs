@@ -2,6 +2,8 @@
 {
     public class CompanyRequestDto
     {
+        public string Id { get; set; }
+        public int CompanyIndex { get; set; }
         public string Name { get; set; }
         public string Website { get; set; }
         public string Country { get; set; }

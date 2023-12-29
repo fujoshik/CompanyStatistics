@@ -3,6 +3,7 @@ using Autofac.Extensions.DependencyInjection;
 using CompanyStatistics.API.AutofacModules;
 using CompanyStatistics.API.Extensions;
 using CompanyStatistics.Domain.Paths;
+using CompanyStatistics.Domain.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +17,8 @@ builder.Host
 
 builder.Services.AddControllers();
 
-builder.Services.Configure<FilesFolderPath>(builder.Configuration.GetSection(nameof(FilesFolderPath)));
+builder.Services.Configure<FilesFolderPath>(builder.Configuration.GetSection(nameof(FilesFolderPath)))
+                .Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDb"));
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -24,6 +26,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddCompanyStatisticsAutomapper();
 
 var app = builder.Build();
+
+app.ConfigureSafelistMiddleware(builder.Configuration["AdminSafeList"]);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

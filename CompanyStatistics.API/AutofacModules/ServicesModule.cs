@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using CompanyStatistics.Domain.Services;
 using Microsoft.AspNetCore.Authentication;
 
 namespace CompanyStatistics.API.AutofacModules
@@ -7,7 +8,7 @@ namespace CompanyStatistics.API.AutofacModules
     {
         protected override void Load(ContainerBuilder builder)
         {
-            var assembly = typeof(AuthenticationService).Assembly;
+            var assembly = typeof(CompanyService).Assembly;
 
             builder.RegisterAssemblyTypes(assembly)
                     .Where(t => t.Name.EndsWith("Service"))
