@@ -53,7 +53,7 @@ namespace CompanyStatistics.Domain.Services
                 }
                 else
                 {
-                    await ReadFileAsync(file);
+                    await ReadXlsxFileAsync(file);
                 }
 
                 MoveFile(file);
@@ -81,7 +81,7 @@ namespace CompanyStatistics.Domain.Services
             }
         }
 
-        public async Task ReadFileAsync(string path)
+        public async Task ReadXlsxFileAsync(string path)
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             List<OrganizationDto> organizationList = new List<OrganizationDto>();

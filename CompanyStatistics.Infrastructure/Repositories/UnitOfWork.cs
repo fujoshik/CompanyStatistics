@@ -7,6 +7,7 @@ namespace CompanyStatistics.Infrastructure.Repositories
     {
         private readonly IConfiguration _configuration;
         private ICompanyRepository _companyRepository;
+        private IAccountRepository _accountRepository;
 
         public UnitOfWork(IConfiguration configuration)
         {
@@ -22,6 +23,18 @@ namespace CompanyStatistics.Infrastructure.Repositories
                     _companyRepository = new CompanyRepository(_configuration);
                 }
                 return _companyRepository;
+            }
+        }
+
+        public IAccountRepository AccountRepository
+        {
+            get
+            {
+                if (_accountRepository == null)
+                {
+                    _accountRepository = new AccountRepository(_configuration);
+                }
+                return _accountRepository;
             }
         }
     }

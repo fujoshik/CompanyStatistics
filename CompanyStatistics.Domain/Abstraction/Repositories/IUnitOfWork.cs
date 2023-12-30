@@ -3,5 +3,6 @@
     public interface IUnitOfWork
     {
         ICompanyRepository CompanyRepository { get; }
+        IAccountRepository AccountRepository { get; }
     }
 }
