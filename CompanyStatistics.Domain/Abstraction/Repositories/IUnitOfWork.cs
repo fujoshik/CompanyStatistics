@@ -4,5 +4,6 @@
     {
         ICompanyRepository CompanyRepository { get; }
         IAccountRepository AccountRepository { get; }
+        IUserRepository UserRepository { get; }
     }
 }
