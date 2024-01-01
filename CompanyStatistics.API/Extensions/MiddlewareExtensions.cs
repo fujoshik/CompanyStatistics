@@ -8,5 +8,10 @@ namespace CompanyStatistics.API.Extensions
         {
             app.UseMiddleware<AdminSafelistMiddleware>(safelist);
         }
+
+        public static void ConfigureCustomExceptionMiddleware(this WebApplication app)
+        {
+            app.UseMiddleware<ExceptionMiddleware>();
+        }
     }
 }

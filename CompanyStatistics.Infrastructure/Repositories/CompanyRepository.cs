@@ -1,6 +1,5 @@
 ﻿using CompanyStatistics.Domain.Abstraction.Repositories;
 using CompanyStatistics.Domain.DTOs.Company;
-using CompanyStatistics.Domain.Enums;
 using CompanyStatistics.Infrastructure.Entities;
 using Microsoft.Extensions.Configuration;
 using System.Data;
