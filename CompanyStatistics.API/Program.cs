@@ -31,6 +31,8 @@ app.ConfigureSafelistMiddleware(builder.Configuration["AdminSafeList"]);
 
 app.ConfigureCustomExceptionMiddleware();
 
+app.ConfigureCustomHeaderMiddleware();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

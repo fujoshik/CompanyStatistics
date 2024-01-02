@@ -13,5 +13,10 @@ namespace CompanyStatistics.API.Extensions
         {
             app.UseMiddleware<ExceptionMiddleware>();
         }
+
+        public static void ConfigureCustomHeaderMiddleware(this WebApplication app)
+        {
+            app.UseMiddleware<CustomHeaderMiddleware>();
+        }
     }
 }
