@@ -1,5 +1,7 @@
-﻿using CompanyStatistics.Domain.Abstraction.Repositories;
+﻿using AutoMapper;
+using CompanyStatistics.Domain.Abstraction.Repositories;
 using CompanyStatistics.Domain.Abstraction.Services;
+using CompanyStatistics.Domain.DTOs.Authentication;
 using CompanyStatistics.Domain.DTOs.User;
 using CompanyStatistics.Domain.Pagination;
 
@@ -8,18 +10,24 @@ namespace CompanyStatistics.Domain.Services
     public class UserService : IUserService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public UserService(IUnitOfWork unitOfWork)
+        public UserService(IUnitOfWork unitOfWork,
+                           IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
-        public async Task<UserResponseDto> CreateAsync(UserRequestDto user)
+        public async Task<UserResponseDto> CreateAsync(RegisterDto registerDto, string accountId)
         {
-            if (user == null)
+            if (registerDto == null)
             {
-                throw new ArgumentNullException(nameof(user));
+                throw new ArgumentNullException(nameof(registerDto));
             }
+
+            var user = _mapper.Map<UserRequestDto>(registerDto);
+            user.AccountId = accountId;
 
             return await _unitOfWork.UserRepository.InsertAsync<UserRequestDto, UserResponseDto>(user);
         }

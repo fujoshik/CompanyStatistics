@@ -4,6 +4,7 @@ using CompanyStatistics.API.AutofacModules;
 using CompanyStatistics.API.Extensions;
 using CompanyStatistics.Domain.Paths;
 using CompanyStatistics.Domain.Settings;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,11 +18,40 @@ builder.Host
 
 builder.Services.AddControllers();
 
+builder.AddJwtAuthentication();
+
 builder.Services.Configure<FilesFolderPath>(builder.Configuration.GetSection(nameof(FilesFolderPath)))
+                .Configure<JwtSettings>(builder.Configuration.GetSection(nameof(JwtSettings)))
                 .Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDb"));
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "CompanyStatistics API", Version = "v1" });
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "Example: \"Athorization: Bearer {token}\"",
+        Type = SecuritySchemeType.ApiKey,
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Name = "Authorization"
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
 
 builder.Services.AddCompanyStatisticsAutomapper();
 

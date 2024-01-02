@@ -8,6 +8,8 @@ namespace CompanyStatistics.API.Extensions
             => services.AddAutoMapper(mc =>
             {
                 mc.AddProfile(new CompanyProfile());
+                mc.AddProfile(new AccountProfile());
+                mc.AddProfile(new UserProfile());
             });
     }
 }
