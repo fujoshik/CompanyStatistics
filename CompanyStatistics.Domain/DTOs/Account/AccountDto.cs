@@ -8,5 +8,6 @@ namespace CompanyStatistics.Domain.DTOs.Account
         public string PasswordHash { get; set; }
         public string PasswordSalt { get; set; }
         public Role Role { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }

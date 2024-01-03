@@ -22,8 +22,9 @@ namespace CompanyStatistics.Infrastructure.Repositories
                 Age = int.Parse(dataRow["Age"].ToString()),
                 FirstName = dataRow["FirstName"].ToString(),
                 LastName = dataRow["LastName"].ToString(),
-                AccountId = dataRow["Website"].ToString(),
-                Country = dataRow["Country"].ToString()
+                AccountId = dataRow["AccountId"].ToString(),
+                Country = dataRow["Country"].ToString(),
+                IsDeleted = bool.Parse(dataRow["IsDeleted"].ToString())
             };
 
             return (TOutput)Convert.ChangeType(result, typeof(TOutput));

@@ -23,7 +23,8 @@ namespace CompanyStatistics.Infrastructure.Repositories
             {
                 Id = dataRow["Id"].ToString(),
                 Email = dataRow["Email"].ToString(),
-                Role = (Role)int.Parse(dataRow["Role"].ToString())
+                Role = (Role)int.Parse(dataRow["Role"].ToString()),
+                IsDeleted = bool.Parse(dataRow["IsDeleted"].ToString())
             };
 
             return (TOutput)Convert.ChangeType(result, typeof(TOutput));

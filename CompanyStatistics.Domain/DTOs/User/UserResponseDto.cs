@@ -7,5 +7,6 @@
         public int Age { get; set; }
         public string Country { get; set; }
         public string AccountId { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }

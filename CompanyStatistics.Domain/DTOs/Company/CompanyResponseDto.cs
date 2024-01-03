@@ -10,5 +10,6 @@
         public int Founded { get; set; }
         public string Industry { get; set; }
         public int NumberOfEmployees { get; set; }
+        public bool? IsDeleted { get; set; }
     }
 }

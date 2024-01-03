@@ -1,4 +1,5 @@
-﻿using CompanyStatistics.Domain.DTOs.Account;
+﻿using CompanyStatistics.Domain.Abstraction.Services;
+using CompanyStatistics.Domain.DTOs.Account;
 using CompanyStatistics.Domain.Settings;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -9,7 +10,7 @@ using System.Text;
 
 namespace CompanyStatistics.Domain.Services
 {
-    public class TokenService
+    public class TokenService : ITokenService
     {
         private readonly JwtSettings _jwtSettings;
 

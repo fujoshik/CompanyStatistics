@@ -11,12 +11,15 @@ namespace CompanyStatistics.Domain.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IPasswordService _passwordService;
 
         public AccountService(IUnitOfWork unitOfWork,
-                              IMapper mapper)
+                              IMapper mapper,
+                              IPasswordService passwordService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _passwordService = passwordService;
         }
 
         public async Task<AccountResponseDto> CreateAsync(RegisterDto registerDto)
@@ -27,6 +30,8 @@ namespace CompanyStatistics.Domain.Services
             }
 
             var account = _mapper.Map<AccountRequestDto>(registerDto);
+
+            GeneratePassword(account, registerDto);
 
             return await _unitOfWork.AccountRepository.InsertAsync<AccountRequestDto, AccountResponseDto>(account);
         }
@@ -64,6 +69,13 @@ namespace CompanyStatistics.Domain.Services
             }
 
             await _unitOfWork.AccountRepository.DeleteAsync(id);
+        }
+
+        private void GeneratePassword(AccountRequestDto account, RegisterDto registerDto)
+        {
+            var salt = _passwordService.GenerateSalt();
+            account.PasswordHash = _passwordService.HashPasword(registerDto.Password, salt);
+            account.PasswordSalt = Convert.ToBase64String(salt);
         }
     }
 }

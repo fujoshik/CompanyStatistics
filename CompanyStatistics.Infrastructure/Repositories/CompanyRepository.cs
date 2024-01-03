@@ -26,7 +26,8 @@ namespace CompanyStatistics.Infrastructure.Repositories
                 Description = dataRow["Description"].ToString(),
                 Founded = int.Parse(dataRow["Founded"].ToString()),
                 Industry = dataRow["Industry"].ToString(),
-                NumberOfEmployees = int.Parse(dataRow["NumberOfEmployees"].ToString())
+                NumberOfEmployees = int.Parse(dataRow["NumberOfEmployees"].ToString()),
+                IsDeleted = bool.Parse(dataRow["IsDeleted"].ToString())
             };
 
             return (TOutput)Convert.ChangeType(result, typeof(TOutput));
