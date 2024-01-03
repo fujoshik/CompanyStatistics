@@ -32,14 +32,16 @@ namespace CompanyStatistics.Domain.Services
             return await _unitOfWork.UserRepository.InsertAsync<UserRequestDto, UserResponseDto>(user);
         }
 
-        public async Task<UserResponseDto> UpdateAsync(string id, UserRequestDto user)
+        public async Task<UserResponseDto> UpdateAsync(string id, UserWithoutIdDto user)
         {
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
             }
 
-            return await _unitOfWork.UserRepository.UpdateAsync<UserRequestDto, UserResponseDto>(id, user);
+            var userRequestDto = _mapper.Map<UserRequestDto>(user);
+
+            return await _unitOfWork.UserRepository.UpdateAsync<UserRequestDto, UserResponseDto>(id, userRequestDto);
         }
 
         public async Task<UserResponseDto> GetByIdAsync(string id)
