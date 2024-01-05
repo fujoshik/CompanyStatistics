@@ -1,4 +1,5 @@
-﻿using CompanyStatistics.Domain.Abstraction.Repositories;
+﻿using AutoMapper;
+using CompanyStatistics.Domain.Abstraction.Repositories;
 using CompanyStatistics.Domain.Abstraction.Services;
 using CompanyStatistics.Domain.DTOs.Company;
 using CompanyStatistics.Domain.Pagination;
@@ -8,10 +9,13 @@ namespace CompanyStatistics.Domain.Services
     public class CompanyService : ICompanyService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public CompanyService(IUnitOfWork unitOfWork)
+        public CompanyService(IUnitOfWork unitOfWork,
+                              IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         public async Task<CompanyResponseDto> CreateAsync(CompanyRequestDto companyDto)
@@ -24,14 +28,16 @@ namespace CompanyStatistics.Domain.Services
             return await _unitOfWork.CompanyRepository.InsertAsync<CompanyRequestDto, CompanyResponseDto>(companyDto);
         }
 
-        public async Task<CompanyResponseDto> UpdateAsync(string id, CompanyRequestDto company)
+        public async Task<CompanyResponseDto> UpdateAsync(string id, CompanyWithoutIdDto company)
         {
             if (company == null)
             {
                 throw new ArgumentNullException(nameof(company));
             }
 
-            return await _unitOfWork.CompanyRepository.UpdateAsync<CompanyRequestDto, CompanyResponseDto>(id, company);
+            var companyRequestDto = _mapper.Map<CompanyRequestDto>(company);
+
+            return await _unitOfWork.CompanyRepository.UpdateAsync<CompanyRequestDto, CompanyResponseDto>(id, companyRequestDto);
         }
 
         public async Task<CompanyResponseDto> GetByIdAsync(string id)

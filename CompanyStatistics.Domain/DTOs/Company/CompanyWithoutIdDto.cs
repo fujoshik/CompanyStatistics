@@ -1,8 +1,7 @@
 ﻿namespace CompanyStatistics.Domain.DTOs.Company
 {
-    public class CompanyRequestDto
+    public class CompanyWithoutIdDto
     {
-        public string Id { get; set; }
         public int CompanyIndex { get; set; }
         public string Name { get; set; }
         public string Website { get; set; }

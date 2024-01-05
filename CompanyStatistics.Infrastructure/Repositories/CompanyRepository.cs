@@ -1,6 +1,8 @@
 ﻿using CompanyStatistics.Domain.Abstraction.Repositories;
+using CompanyStatistics.Domain.Constants;
 using CompanyStatistics.Domain.DTOs.Company;
 using CompanyStatistics.Infrastructure.Entities;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using System.Data;
 
@@ -31,6 +33,93 @@ namespace CompanyStatistics.Infrastructure.Repositories
             };
 
             return (TOutput)Convert.ChangeType(result, typeof(TOutput));
+        }
+
+        protected override List<TOutput> DataTableToCollection<TOutput>(DataTable table)
+        {
+            if (table == null)
+            {
+                return null;
+            }
+
+            return table
+                .AsEnumerable()
+                .Select(x => DataRowToEntity<TOutput>(x))
+                .ToList();
+        }
+
+        public async Task<List<CompanyResponseDto>> GetTopNCompaniesByEmployeeCountAsync(int n)
+        {
+            await CreateDbIfNotExist();
+
+            var dataTable = new DataTable();
+
+            using (var connection = new SqlConnection(_dbConnectionString))
+            {
+                connection.Open();
+                SqlCommand cmd = new SqlCommand(SqlQueryConstants.GET_TOP_N_COMPANIES_BY_EMPLOYEE_COUNT, connection);
+                cmd.Parameters.Add(new SqlParameter("@N", n));
+
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    dataTable.Load(reader);
+                }
+            }
+            return DataTableToCollection<CompanyResponseDto>(dataTable);
+        }
+
+        public async Task<int> CountEmployeesByIndustryAsync(string industry)
+        {
+            await CreateDbIfNotExist();
+
+            var dataTable = new DataTable();
+            using (var connection = new SqlConnection(_dbConnectionString))
+            {
+                connection.Open();
+                SqlCommand cmd = new SqlCommand(SqlQueryConstants.COUNT_EMPLOYEES_BY_INDUSTRY, connection);
+                cmd.Parameters.Add(new SqlParameter("@Industry", $"%{industry.ToLower()}%"));
+
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    dataTable.Load(reader);
+                }
+            }
+            int result = 0;
+
+            if (dataTable.Rows.Count == 0)
+            {
+                return result;
+            }
+
+            foreach (DataRow row in dataTable.Rows)
+            {
+                if (row != null)
+                {
+                    result += int.Parse(row["NumberOfEmployees"].ToString());
+                }
+            }
+
+            return result;
+        }
+
+        public async Task<List<CompanyResponseDto>> GroupCompaniesByCountryAsync(string country)
+        {
+            await CreateDbIfNotExist();
+
+            var dataTable = new DataTable();
+
+            using (var connection = new SqlConnection(_dbConnectionString))
+            {
+                connection.Open();
+                SqlCommand cmd = new SqlCommand(SqlQueryConstants.GROUP_COMPANIES_BY_COUNTRY, connection);
+                cmd.Parameters.Add(new SqlParameter("@Country", country));
+
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    dataTable.Load(reader);
+                }
+            }
+            return DataTableToCollection<CompanyResponseDto>(dataTable);
         }
     }
 }

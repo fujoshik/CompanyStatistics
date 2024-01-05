@@ -1,8 +1,8 @@
 ﻿using CompanyStatistics.Domain.DTOs.Company;
 
-namespace CompanyStatistics.Domain.Abstraction.Repositories
+namespace CompanyStatistics.Domain.Abstraction.Services
 {
-    public interface ICompanyRepository : IBaseRepository
+    public interface IStatisticsService
     {
         Task<int> CountEmployeesByIndustryAsync(string industry);
         Task<List<CompanyResponseDto>> GetTopNCompaniesByEmployeeCountAsync(int n);
