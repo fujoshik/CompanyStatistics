@@ -18,7 +18,7 @@ namespace CompanyStatistics.API.Controllers
 
         [AllowAnonymous]
         [HttpPost("login")]
-        public async Task<ActionResult<string>> Login(LoginDto account)
+        public async Task<ActionResult<string>> Login([FromBody] LoginDto account)
         {
             var token = await _service.LoginAsync(account);
 
@@ -32,7 +32,7 @@ namespace CompanyStatistics.API.Controllers
 
         [AllowAnonymous]
         [HttpPost("register")]
-        public async Task<ActionResult> RegisterAsync(RegisterDto registerDto)
+        public async Task<ActionResult> RegisterAsync([FromBody] RegisterDto registerDto)
         {
             await _service.RegisterAccountAsync(registerDto);
 

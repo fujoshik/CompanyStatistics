@@ -6,6 +6,6 @@ namespace CompanyStatistics.Domain.Abstraction.Services
     {
         Task<int> CountEmployeesByIndustryAsync(string industry);
         Task<List<CompanyResponseDto>> GetTopNCompaniesByEmployeeCountAsync(int n);
-        Task<List<CompanyResponseDto>> GroupCompaniesByCountryAsync(string country);
+        Task<List<CompanyResponseDto>> GroupCompaniesByCountryAndIndustryAsync(string country, string industry);
     }
 }

@@ -10,6 +10,12 @@
 
         public const string GET_TOP_N_COMPANIES_BY_EMPLOYEE_COUNT = $@"{USE_COMPANYSTATISTICSDB} SELECT TOP (@N) * FROM Companies ORDER BY NumberOfEmployees DESC";
 
+        public const string GROUP_COMPANIES_BY_COUNTRY_AND_INDUSTRY = $@"{USE_COMPANYSTATISTICSDB} SELECT * FROM Companies WHERE Country = @Country AND Industry = @Industry";
+
         public const string GROUP_COMPANIES_BY_COUNTRY = $@"{USE_COMPANYSTATISTICSDB} SELECT * FROM Companies WHERE Country = @Country";
+
+        public const string GROUP_COMPANIES_BY_INDUSTRY = $@"{USE_COMPANYSTATISTICSDB} SELECT * FROM Companies WHERE Industry = @Industry";
+
+        public const string RETURN_ALL_COMPANIES = $@"{USE_COMPANYSTATISTICSDB} SELECT * FROM Companies";
     }
 }

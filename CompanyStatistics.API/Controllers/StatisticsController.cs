@@ -16,7 +16,7 @@ namespace CompanyStatistics.API.Controllers
         }
 
         [HttpGet("employee-count-by-industry")]
-        public async Task<ActionResult<int>> CountEmployeesByIndustryAsync(string industry)
+        public async Task<ActionResult<int>> CountEmployeesByIndustryAsync([FromQuery] string industry)
         {
             var count = await _statisticsService.CountEmployeesByIndustryAsync(industry);
 
@@ -24,17 +24,17 @@ namespace CompanyStatistics.API.Controllers
         }
 
         [HttpGet("get-top-n-companies-by-employee-count")]
-        public async Task<ActionResult<CompanyResponseDto>> GetTopNCompaniesByEmployeeCountAsync(int n)
+        public async Task<ActionResult<CompanyResponseDto>> GetTopNCompaniesByEmployeeCountAsync([FromQuery] int n)
         {
             var companies = await _statisticsService.GetTopNCompaniesByEmployeeCountAsync(n);
 
             return Ok(companies);
         }
 
-        [HttpGet("group-companies-by-country")]
-        public async Task<ActionResult<CompanyResponseDto>> GroupCompaniesByCountryAsync(string country)
+        [HttpGet("group-companies-by-country-and-industry")]
+        public async Task<ActionResult<CompanyResponseDto>> GroupCompaniesByCountryAndIndustryAsync([FromQuery] string country = null, [FromQuery] string industry = null)
         {
-            var companies = await _statisticsService.GroupCompaniesByCountryAsync(country);
+            var companies = await _statisticsService.GroupCompaniesByCountryAndIndustryAsync(country, industry);
 
             return Ok(companies);
         }

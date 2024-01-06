@@ -102,7 +102,7 @@ namespace CompanyStatistics.Infrastructure.Repositories
             return result;
         }
 
-        public async Task<List<CompanyResponseDto>> GroupCompaniesByCountryAsync(string country)
+        public async Task<List<CompanyResponseDto>> GroupCompaniesByCountryAndIndustryAsync(string country, string industry)
         {
             await CreateDbIfNotExist();
 
@@ -111,8 +111,27 @@ namespace CompanyStatistics.Infrastructure.Repositories
             using (var connection = new SqlConnection(_dbConnectionString))
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand(SqlQueryConstants.GROUP_COMPANIES_BY_COUNTRY, connection);
-                cmd.Parameters.Add(new SqlParameter("@Country", country));
+                SqlCommand cmd = new SqlCommand();
+                if (country != null && industry != null)
+                {
+                    cmd = new SqlCommand(SqlQueryConstants.GROUP_COMPANIES_BY_COUNTRY_AND_INDUSTRY, connection);
+                    cmd.Parameters.Add(new SqlParameter("@Country", country));
+                    cmd.Parameters.Add(new SqlParameter("@Industry", industry));
+                }
+                else if (country != null)
+                {
+                    cmd = new SqlCommand(SqlQueryConstants.GROUP_COMPANIES_BY_COUNTRY, connection);
+                    cmd.Parameters.Add(new SqlParameter("@Country", country));
+                }
+                else if (industry != null)
+                {
+                    cmd = new SqlCommand(SqlQueryConstants.GROUP_COMPANIES_BY_INDUSTRY, connection);
+                    cmd.Parameters.Add(new SqlParameter("@Industry", industry));
+                }
+                else
+                {
+                    cmd = new SqlCommand(SqlQueryConstants.RETURN_ALL_COMPANIES, connection);
+                }
 
                 using (var reader = await cmd.ExecuteReaderAsync())
                 {

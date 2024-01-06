@@ -23,9 +23,9 @@ namespace CompanyStatistics.Domain.Services
             return await _unitOfWork.CompanyRepository.GetTopNCompaniesByEmployeeCountAsync(n);
         }
 
-        public async Task<List<CompanyResponseDto>> GroupCompaniesByCountryAsync(string country)
+        public async Task<List<CompanyResponseDto>> GroupCompaniesByCountryAndIndustryAsync(string country, string industry)
         {
-            return await _unitOfWork.CompanyRepository.GroupCompaniesByCountryAsync(country);
+            return await _unitOfWork.CompanyRepository.GroupCompaniesByCountryAndIndustryAsync(country, industry);
         }
     }
 }
