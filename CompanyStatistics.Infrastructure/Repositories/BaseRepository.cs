@@ -141,7 +141,7 @@ namespace CompanyStatistics.Infrastructure.Repositories
             using (var connection = new SqlConnection(_dbConnectionString))
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand($@"SELECT * FROM {TableName} WHERE Id = @Id", connection);
+                SqlCommand cmd = new SqlCommand($@"SELECT * FROM {TableName} WHERE Id = @Id AND IsDeleted = 0", connection);
                 cmd.Parameters.Add(new SqlParameter("@Id", id));
                 using (var reader = await cmd.ExecuteReaderAsync())
                 {
@@ -164,7 +164,7 @@ namespace CompanyStatistics.Infrastructure.Repositories
             using (var connection = new SqlConnection(_dbConnectionString))
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand($"USE CompanyStatisticsDB; SELECT * FROM {TableName}", connection);
+                SqlCommand cmd = new SqlCommand($"USE CompanyStatisticsDB; SELECT * FROM {TableName} WHERE IsDeleted = 0", connection);
                 using (var reader = await cmd.ExecuteReaderAsync())
                 {
                     dataTable.Load(reader);
@@ -208,7 +208,7 @@ namespace CompanyStatistics.Infrastructure.Repositories
             {
                 connection.Open();
                 SqlCommand cmd = new SqlCommand($"DECLARE @MyTableVar table([testID] [varchar](250)); " +
-                    $"USE CompanyStatisticsDB; UPDATE {TableName} SET {valuesToProps} WHERE Id = '{id}'" +
+                    $"USE CompanyStatisticsDB; UPDATE {TableName} SET {valuesToProps} WHERE Id = '{id}' AND IsDeleted = 0" +
                     $"OUTPUT INSERTED.Id INTO @MyTableVar " +
                     $"SELECT * FROM {TableName} WHERE Id = CAST((SELECT TOP 1 testID from @MyTableVar) AS nvarchar(250))", connection);
                 using (var reader = await cmd.ExecuteReaderAsync())
