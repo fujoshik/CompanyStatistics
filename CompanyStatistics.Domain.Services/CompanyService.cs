@@ -25,6 +25,11 @@ namespace CompanyStatistics.Domain.Services
                 throw new ArgumentNullException(nameof(companyDto));
             }
 
+            if (companyDto.Id == null)
+            {
+                companyDto.Id = Guid.NewGuid().ToString();
+            }            
+
             return await _unitOfWork.CompanyRepository.InsertAsync<CompanyRequestDto, CompanyResponseDto>(companyDto);
         }
 

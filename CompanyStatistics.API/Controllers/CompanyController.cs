@@ -29,6 +29,15 @@ namespace CompanyStatistics.API.Controllers
             return Ok();
         }
 
+        [HttpPost]
+        [AuthorizeRoles(Role.Admin, Role.Regular)]
+        public async Task<IActionResult> CreateAsync([FromBody] CompanyRequestDto company)
+        {
+            await _companyService.CreateAsync(company);
+
+            return Ok();
+        }
+
         [HttpGet("{id}")]
         [ActionName(nameof(GetByIdAsync))]
         public async Task<ActionResult<CompanyResponseDto>> GetByIdAsync([FromRoute] string id)
