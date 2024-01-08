@@ -46,7 +46,6 @@ namespace CompanyStatistics.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        [AuthorizeRoles(Role.Admin)]
         public async Task<ActionResult> DeleteAsync([FromRoute] string id)
         {
             await _userService.DeleteAsync(id);

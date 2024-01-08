@@ -1,24 +1,45 @@
 ﻿using CompanyStatistics.Domain.Abstraction.Services;
 using CompanyStatistics.Domain.DTOs.Company;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace CompanyStatistics.API.Controllers
 {
-    [Route("api/statistics")]
     [ApiController]
+    [Route("api/statistics")]  
     public class StatisticsController : ControllerBase
     {
         private readonly IStatisticsService _statisticsService;
+        private readonly IMemoryCache _cache;
+        private readonly ILogger<StatisticsController> _logger;
 
-        public StatisticsController(IStatisticsService statisticsService)
+        public StatisticsController(IStatisticsService statisticsService,
+                                    IMemoryCache memoryCache,
+                                    ILogger<StatisticsController> logger)
         {
             _statisticsService = statisticsService;
+            _cache = memoryCache;
+            _logger = logger;
         }
 
         [HttpGet("employee-count-by-industry")]
         public async Task<ActionResult<int>> CountEmployeesByIndustryAsync([FromQuery] string industry)
         {
-            var count = await _statisticsService.CountEmployeesByIndustryAsync(industry);
+            if (!_cache.TryGetValue($"employee-count-by-industry-{industry}", out int count))
+            {
+                count = await _statisticsService.CountEmployeesByIndustryAsync(industry);
+
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromSeconds(45))
+                    .SetAbsoluteExpiration(TimeSpan.FromSeconds(3600))
+                    .SetPriority(CacheItemPriority.Normal);
+
+                _cache.Set($"employee-count-by-industry-{industry}", count, cacheEntryOptions);
+            }
+            else
+            {
+                _logger.LogInformation("Found in cache");
+            }
 
             return Ok(count);
         }
@@ -26,15 +47,37 @@ namespace CompanyStatistics.API.Controllers
         [HttpGet("get-top-n-companies-by-employee-count")]
         public async Task<ActionResult<CompanyResponseDto>> GetTopNCompaniesByEmployeeCountAsync([FromQuery] int n)
         {
-            var companies = await _statisticsService.GetTopNCompaniesByEmployeeCountAsync(n);
+            if (!_cache.TryGetValue($"get-top-n-companies-by-employee-count-{n}", out List<CompanyResponseDto> companies))
+            {
+                companies = await _statisticsService.GetTopNCompaniesByEmployeeCountAsync(n);
+
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromSeconds(45))
+                    .SetAbsoluteExpiration(TimeSpan.FromSeconds(3600))
+                    .SetPriority(CacheItemPriority.Normal);
+
+                _cache.Set($"get-top-n-companies-by-employee-count-{n}", companies, cacheEntryOptions);
+            }
 
             return Ok(companies);
         }
 
         [HttpGet("group-companies-by-country-and-industry")]
-        public async Task<ActionResult<CompanyResponseDto>> GroupCompaniesByCountryAndIndustryAsync([FromQuery] string country = null, [FromQuery] string industry = null)
+        public async Task<ActionResult<CompanyResponseDto>> GroupCompaniesByCountryAndIndustryAsync(
+            [FromQuery] string country = null, [FromQuery] string industry = null)
         {
-            var companies = await _statisticsService.GroupCompaniesByCountryAndIndustryAsync(country, industry);
+            if (!_cache.TryGetValue($"group-companies-by-country-and-industry-{country}-{industry}", 
+                out List<CompanyResponseDto> companies))
+            {
+                companies = await _statisticsService.GroupCompaniesByCountryAndIndustryAsync(country, industry);
+
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromSeconds(45))
+                    .SetAbsoluteExpiration(TimeSpan.FromSeconds(3600))
+                    .SetPriority(CacheItemPriority.Normal);
+
+                _cache.Set($"group-companies-by-country-and-industry-{country}-{industry}", companies, cacheEntryOptions);
+            }
 
             return Ok(companies);
         }

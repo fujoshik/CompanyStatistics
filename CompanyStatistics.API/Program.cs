@@ -20,6 +20,8 @@ builder.Services.AddControllers();
 
 builder.AddJwtAuthentication();
 
+builder.Services.AddMemoryCache();
+
 builder.Services.Configure<FilesFolderPath>(builder.Configuration.GetSection(nameof(FilesFolderPath)))
                 .Configure<JwtSettings>(builder.Configuration.GetSection(nameof(JwtSettings)))
                 .Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDb"));
