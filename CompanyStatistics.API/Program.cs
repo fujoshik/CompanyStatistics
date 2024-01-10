@@ -18,6 +18,8 @@ builder.Host
 
 builder.Services.AddControllers();
 
+builder.Services.AddQuartzConfiguration();
+
 builder.AddJwtAuthentication();
 
 builder.Services.AddMemoryCache();

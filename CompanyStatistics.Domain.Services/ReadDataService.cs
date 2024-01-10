@@ -9,7 +9,6 @@ using CsvHelper.Configuration;
 using Microsoft.Extensions.Options;
 using OfficeOpenXml;
 using System.Globalization;
-using System.IO;
 using System.Text.RegularExpressions;
 using LicenseContext = OfficeOpenXml.LicenseContext;
 
@@ -67,11 +66,15 @@ namespace CompanyStatistics.Domain.Services
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
                 Delimiter = ",",
-                HasHeaderRecord = false
+                Mode = CsvMode.RFC4180
             };
 
+            //string fileContent = File.ReadAllText(fileName);
+            //fileContent = fileContent.Replace("'", "''").Replace("\"", "");
             using var streamReader = File.OpenText(fileName);
-            using var csv = new CsvReader(streamReader, CultureInfo.InvariantCulture);
+            //using var streamReader = new StringReader(fileContent);
+
+            using var csv = new CsvReader(streamReader, config);
 
             var records = csv.GetRecords<OrganizationDto>();
 
@@ -88,7 +91,7 @@ namespace CompanyStatistics.Domain.Services
 
             using (ExcelPackage package = new ExcelPackage(new FileInfo(path)))
             {
-                int startIndex = 2;
+                int startIndex = 1;
 
                 var sheet = package.Workbook.Worksheets["Лист1"];
                 var result = sheet.Cells[1, 1].Value.ToString().Split(",");
@@ -100,7 +103,7 @@ namespace CompanyStatistics.Domain.Services
                     startIndex = file.Index + 1;
                 }
 
-                for (int i = startIndex; i <= sheet.Dimension.Rows; i++)
+                for (int i = startIndex + 1; i <= sheet.Dimension.Rows; i++)
                 {
                     var row = Regex.Split(sheet.Cells[i, 1].Value.ToString().Replace("'", "''").Replace("\"", ""), @",(?!\s)");
                     var organization = new OrganizationDto()

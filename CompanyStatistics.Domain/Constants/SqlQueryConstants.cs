@@ -10,6 +10,8 @@
 
         public const string GET_TOP_N_COMPANIES_BY_EMPLOYEE_COUNT = $@"{USE_COMPANYSTATISTICSDB} SELECT TOP (@N) * FROM Companies WHERE IsDeleted = 0 ORDER BY NumberOfEmployees DESC";
 
+        public const string GET_TOP_N_COMPANIES_BY_EMPLOYEE_COUNT_AND_DATE = $@"{USE_COMPANYSTATISTICSDB} SELECT TOP (@N) * FROM Companies WHERE IsDeleted = 0 AND CAST(DateRead AS date) = CAST(@Date AS date) ORDER BY NumberOfEmployees DESC";
+
         public const string GROUP_COMPANIES_BY_COUNTRY_AND_INDUSTRY = $@"{USE_COMPANYSTATISTICSDB} SELECT * FROM Companies WHERE Country = @Country AND Industry = @Industry AND IsDeleted = 0";
 
         public const string GROUP_COMPANIES_BY_COUNTRY = $@"{USE_COMPANYSTATISTICSDB} SELECT * FROM Companies WHERE Country = @Country AND IsDeleted = 0";
@@ -17,5 +19,7 @@
         public const string GROUP_COMPANIES_BY_INDUSTRY = $@"{USE_COMPANYSTATISTICSDB} SELECT * FROM Companies WHERE Industry = @Industry AND IsDeleted = 0";
 
         public const string RETURN_ALL_COMPANIES = $@"{USE_COMPANYSTATISTICSDB} SELECT * FROM Companies WHERE IsDeleted = 0";
+
+        public const string GET_COMPANIES_BY_DATE = $@"{USE_COMPANYSTATISTICSDB} SELECT * FROM Companies WHERE IsDeleted = 0 AND CAST(DateRead AS date) = CAST(@Date AS date)";
     }
 }

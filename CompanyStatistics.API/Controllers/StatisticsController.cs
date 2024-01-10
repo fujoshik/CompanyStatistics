@@ -45,11 +45,11 @@ namespace CompanyStatistics.API.Controllers
         }
 
         [HttpGet("get-top-n-companies-by-employee-count")]
-        public async Task<ActionResult<CompanyResponseDto>> GetTopNCompaniesByEmployeeCountAsync([FromQuery] int n)
+        public async Task<ActionResult<CompanyResponseDto>> GetTopNCompaniesByEmployeeCountAndDateAsync([FromQuery] int n)
         {
             if (!_cache.TryGetValue($"get-top-n-companies-by-employee-count-{n}", out List<CompanyResponseDto> companies))
             {
-                companies = await _statisticsService.GetTopNCompaniesByEmployeeCountAsync(n);
+                companies = await _statisticsService.GetTopNCompaniesByEmployeeCountAndDateAsync(n);
 
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
                     .SetSlidingExpiration(TimeSpan.FromSeconds(45))

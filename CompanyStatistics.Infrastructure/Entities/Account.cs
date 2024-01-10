@@ -8,5 +8,6 @@ namespace CompanyStatistics.Infrastructure.Entities
         public string PasswordSalt { get; set; }
         public string PasswordHash { get; set; }
         public Role Role { get; set; }
+        public int IsDeleted { get; set; }
     }
 }

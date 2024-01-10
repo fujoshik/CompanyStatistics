@@ -29,7 +29,8 @@ namespace CompanyStatistics.Infrastructure.Repositories
                 Founded = int.Parse(dataRow["Founded"].ToString()),
                 Industry = dataRow["Industry"].ToString(),
                 NumberOfEmployees = int.Parse(dataRow["NumberOfEmployees"].ToString()),
-                IsDeleted = bool.Parse(dataRow["IsDeleted"].ToString())
+                IsDeleted = bool.Parse(dataRow["IsDeleted"].ToString()),
+                DateRead = DateTime.Parse(dataRow["DateRead"].ToString())
             };
 
             return (TOutput)Convert.ChangeType(result, typeof(TOutput));
@@ -48,7 +49,7 @@ namespace CompanyStatistics.Infrastructure.Repositories
                 .ToList();
         }
 
-        public async Task<List<CompanyResponseDto>> GetTopNCompaniesByEmployeeCountAsync(int n)
+        public async Task<List<CompanyResponseDto>> GetCompaniesByDate(DateTime date)
         {
             await CreateDbIfNotExist();
 
@@ -57,8 +58,39 @@ namespace CompanyStatistics.Infrastructure.Repositories
             using (var connection = new SqlConnection(_dbConnectionString))
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand(SqlQueryConstants.GET_TOP_N_COMPANIES_BY_EMPLOYEE_COUNT, connection);
-                cmd.Parameters.Add(new SqlParameter("@N", n));
+                SqlCommand cmd = new SqlCommand(SqlQueryConstants.GET_COMPANIES_BY_DATE, connection);
+                cmd.Parameters.Add(new SqlParameter("@Date", date));
+
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    dataTable.Load(reader);
+                }
+            }
+            return DataTableToCollection<CompanyResponseDto>(dataTable);
+        }
+
+        public async Task<List<CompanyResponseDto>> GetTopNCompaniesByEmployeeCountAndDateAsync(int n, DateTime? date = null)
+        {
+            await CreateDbIfNotExist();
+
+            var dataTable = new DataTable();
+
+            using (var connection = new SqlConnection(_dbConnectionString))
+            {
+                connection.Open();
+                SqlCommand cmd = new SqlCommand();
+
+                if (date != null)
+                {
+                    cmd = new SqlCommand(SqlQueryConstants.GET_TOP_N_COMPANIES_BY_EMPLOYEE_COUNT_AND_DATE, connection);
+                    cmd.Parameters.Add(new SqlParameter("@N", n));
+                    cmd.Parameters.Add(new SqlParameter("@Date", date));
+                }
+                else
+                {
+                    cmd = new SqlCommand(SqlQueryConstants.GET_TOP_N_COMPANIES_BY_EMPLOYEE_COUNT, connection);
+                    cmd.Parameters.Add(new SqlParameter("@N", n));
+                }
 
                 using (var reader = await cmd.ExecuteReaderAsync())
                 {
