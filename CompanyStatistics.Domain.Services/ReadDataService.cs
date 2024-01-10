@@ -66,13 +66,10 @@ namespace CompanyStatistics.Domain.Services
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
                 Delimiter = ",",
-                Mode = CsvMode.RFC4180
+                Escape = '\\'
             };
 
-            //string fileContent = File.ReadAllText(fileName);
-            //fileContent = fileContent.Replace("'", "''").Replace("\"", "");
             using var streamReader = File.OpenText(fileName);
-            //using var streamReader = new StringReader(fileContent);
 
             using var csv = new CsvReader(streamReader, config);
 

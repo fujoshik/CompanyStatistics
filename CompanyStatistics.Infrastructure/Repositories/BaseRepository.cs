@@ -101,7 +101,7 @@ namespace CompanyStatistics.Infrastructure.Repositories
             {
                 if (properties[i].PropertyType == typeof(string) || properties[i].PropertyType == typeof(Guid))
                 {
-                    values.Append($"'{properties[i].GetValue(entity)}'");
+                    values.Append($"'{properties[i].GetValue(entity).ToString().Replace("'", "''").Replace("\"", "")}'");
                 }
                 else
                 {
