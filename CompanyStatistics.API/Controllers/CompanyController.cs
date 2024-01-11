@@ -11,10 +11,10 @@ namespace CompanyStatistics.API.Controllers
     [ApiController]
     public class CompanyController : ControllerBase
     {
-        private readonly IReadDataService _readDataService;
+        private readonly IReadFilesService _readDataService;
         private readonly ICompanyService _companyService;
 
-        public CompanyController(IReadDataService readDataService,
+        public CompanyController(IReadFilesService readDataService,
                                  ICompanyService companyService)
         {
             _readDataService = readDataService;

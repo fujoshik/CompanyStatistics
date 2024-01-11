@@ -8,50 +8,34 @@ using CsvHelper.Configuration;
 using OfficeOpenXml;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using LicenseContext = OfficeOpenXml.LicenseContext;
 
 namespace CompanyStatistics.Domain.Services
 {
     public class ReadDataService : IReadDataService
     {
         private readonly IMapper _mapper;
-        private readonly ICompanyService _companyService;
         private readonly IMongoDbService _mongoDbService;
-        private readonly IFileService _fileService;
+        private readonly ICompanyService _companyService;
 
         public ReadDataService(IMapper mapper,
-                               ICompanyService companyService,
                                IMongoDbService mongoDbService,
-                               IFileService fileService)
+                               ICompanyService companyService)
         {
             _mapper = mapper;
             _companyService = companyService;
             _mongoDbService = mongoDbService;
-            _fileService = fileService;
-        }
-
-        public async Task ReadFilesAsync()
-        {
-            var files = _fileService.GetFilesFromMainDirectory();
-
-            foreach (var file in files)
-            {
-                if (file.EndsWith(".csv"))
-                {
-                    await ReadCsvFileAsync(file);
-                }
-                else
-                {
-                    await ReadXlsxFileAsync(file);
-                }
-
-                _fileService.MoveFile(file);
-            }
         }
 
         public async Task ReadCsvFileAsync(string fileName)
         {
-            List<OrganizationDto> organizations = new List<OrganizationDto>();
+            int startIndex = 1;
+
+            var file = await _mongoDbService.GetFileByNameAsync(fileName);
+
+            if (file != null)
+            {
+                startIndex = file.Index;
+            }
 
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
@@ -63,18 +47,17 @@ namespace CompanyStatistics.Domain.Services
 
             using var csv = new CsvReader(streamReader, config);
 
-            var records = csv.GetRecords<OrganizationDto>();
+            var records = csv.GetRecords<OrganizationDto>().ToList();
 
-            foreach (var record in records)
+            for (int i = startIndex; i <= records.Count; i++)
             {
-                await InsertCompanyAndSaveReadFile(fileName, record);
+                await InsertCompanyAndSaveReadFile(fileName, records[i - 1]);
             }
         }
 
-        public async Task ReadXlsxFileAsync(string path)
+        public async Task ReadExcelFileAsync(string path)
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            List<OrganizationDto> organizationList = new List<OrganizationDto>();
 
             using (ExcelPackage package = new ExcelPackage(new FileInfo(path)))
             {
@@ -105,7 +88,6 @@ namespace CompanyStatistics.Domain.Services
                         Industry = row[7],
                         NumberOfEmployees = int.Parse(row[8])
                     };
-                    organizationList.Add(organization);
 
                     await InsertCompanyAndSaveReadFile(path, organization);
                 }

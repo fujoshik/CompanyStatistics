@@ -5,9 +5,9 @@ namespace CompanyStatistics.Domain.Jobs
 {
     public class ReadDataJob : IJob
     {
-        private readonly IReadDataService _readDataService;
+        private readonly IReadFilesService _readDataService;
 
-        public ReadDataJob(IReadDataService readDataService)
+        public ReadDataJob(IReadFilesService readDataService)
         {
             _readDataService = readDataService;
         }

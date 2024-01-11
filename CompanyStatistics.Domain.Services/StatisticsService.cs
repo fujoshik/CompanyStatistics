@@ -7,10 +7,10 @@ namespace CompanyStatistics.Domain.Services
     public class StatisticsService : IStatisticsService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IReadDataService _readDataService;
+        private readonly IReadFilesService _readDataService;
 
         public StatisticsService(IUnitOfWork unitOfWork,
-                                 IReadDataService readDataService)
+                                 IReadFilesService readDataService)
         {
             _unitOfWork = unitOfWork;
             _readDataService = readDataService;
