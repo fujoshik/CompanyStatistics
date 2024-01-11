@@ -1,36 +1,28 @@
-﻿using CompanyStatistics.Domain.Abstraction.Repositories;
-using CompanyStatistics.Domain.Abstraction.Services;
-using CompanyStatistics.Domain.Paths;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
+﻿using CompanyStatistics.Domain.Abstraction.Services;
 using Quartz;
 
 namespace CompanyStatistics.Domain.Jobs
 {
     public class DailyStatisticsJob : IJob
     {
-        private readonly IUnitOfWork _unitOfWork;
         private readonly IStatisticsService _statisticsService;
-        private readonly string _directory;
+        private readonly IFileService _fileService;
 
-        public DailyStatisticsJob(IUnitOfWork unitOfWork,
-                                  IOptions<FilesFolderPath> folderPath,
+        public DailyStatisticsJob(IFileService fileService,
                                   IStatisticsService statisticsService)
         {
-            _unitOfWork = unitOfWork;
             _statisticsService = statisticsService;
-            _directory = folderPath.Value.Path;
+            _fileService = fileService;
         }
 
         public async Task Execute(IJobExecutionContext context)
         {
-            //var yesterdayDate = DateTime.UtcNow.AddDays(-1);
-            //Console.WriteLine(yesterdayDate.Date.ToString("d"));
-            //var topCompaniesByEmployeeCount = await _statisticsService.GetTopNCompaniesByEmployeeCountAndDateAsync(
-            //    10, yesterdayDate);
+            var yesterdayDate = DateTime.UtcNow.AddDays(-1);
 
-            //var jsonString = JsonConvert.SerializeObject(topCompaniesByEmployeeCount);
-            //File.WriteAllText(_directory + "//Statistics//" + yesterdayDate.Date.ToString(), jsonString);
+            var topCompaniesByEmployeeCount = await _statisticsService.GetTopNCompaniesByEmployeeCountAndDateAsync(
+                10, yesterdayDate);
+
+            _fileService.WriteAJsonFileWithStatistics(topCompaniesByEmployeeCount, yesterdayDate.Date.ToString("d"));
         }
     }
 }

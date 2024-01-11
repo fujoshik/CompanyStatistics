@@ -2,6 +2,8 @@
 {
     public class FilesFolderPath
     {
-        public string Path { get; set; }
+        public string MainPath { get; set; }
+        public string ReadFilesPath { get; set; }
+        public string StatisticsPath { get; set; }
     }
 }

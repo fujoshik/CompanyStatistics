@@ -3,10 +3,8 @@ using CompanyStatistics.Domain.Abstraction.Services;
 using CompanyStatistics.Domain.DTOs.Company;
 using CompanyStatistics.Domain.DTOs.File;
 using CompanyStatistics.Domain.DTOs.Organization;
-using CompanyStatistics.Domain.Paths;
 using CsvHelper;
 using CsvHelper.Configuration;
-using Microsoft.Extensions.Options;
 using OfficeOpenXml;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -16,33 +14,25 @@ namespace CompanyStatistics.Domain.Services
 {
     public class ReadDataService : IReadDataService
     {
-        private readonly string _folderPath;
         private readonly IMapper _mapper;
         private readonly ICompanyService _companyService;
         private readonly IMongoDbService _mongoDbService;
+        private readonly IFileService _fileService;
 
-        public ReadDataService(IOptions<FilesFolderPath> folderPath,
-                               IMapper mapper,
+        public ReadDataService(IMapper mapper,
                                ICompanyService companyService,
-                               IMongoDbService mongoDbService)
+                               IMongoDbService mongoDbService,
+                               IFileService fileService)
         {
-            _folderPath = folderPath.Value.Path;
             _mapper = mapper;
             _companyService = companyService;
             _mongoDbService = mongoDbService;
-        }
-
-        private void MoveFile(string file)
-        {
-            if (File.Exists(file))
-            {
-                File.Move(file, _folderPath + $"\\ReadFiles\\{Path.GetFileName(file)}");
-            }
+            _fileService = fileService;
         }
 
         public async Task ReadFilesAsync()
         {
-            var files = Directory.GetFiles(_folderPath);
+            var files = _fileService.GetFilesFromMainDirectory();
 
             foreach (var file in files)
             {
@@ -55,7 +45,7 @@ namespace CompanyStatistics.Domain.Services
                     await ReadXlsxFileAsync(file);
                 }
 
-                MoveFile(file);
+                _fileService.MoveFile(file);
             }
         }
 

@@ -1,5 +1,5 @@
-﻿using CompanyStatistics.Domain.Jobs;
-using CompanyStatistics.Domain.Services;
+﻿using CompanyStatistics.Domain.Constants;
+using CompanyStatistics.Domain.Jobs;
 using CompanyStatistics.Infrastructure.Mapper;
 using Quartz;
 
@@ -23,7 +23,13 @@ namespace CompanyStatistics.API.Extensions
                 q.AddJob<DailyStatisticsJob>(dailyStatisticsJob)
                     .AddTrigger(t => t
                         .ForJob(dailyStatisticsJob)
-                        .WithCronSchedule("0 */3 * ? * *"));
+                        .WithCronSchedule(CronExpressionConstants.EVERY_MINUTE));
+
+                var readDataJob = JobKey.Create(nameof(ReadDataJob));
+                q.AddJob<ReadDataJob>(readDataJob)
+                    .AddTrigger(t => t
+                        .ForJob(readDataJob)
+                        .WithCronSchedule(CronExpressionConstants.EVERY_SIX_HOURS));
             });
 
             services.AddQuartzHostedService();
