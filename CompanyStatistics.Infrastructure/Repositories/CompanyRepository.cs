@@ -1,10 +1,13 @@
 ﻿using CompanyStatistics.Domain.Abstraction.Repositories;
 using CompanyStatistics.Domain.Constants;
 using CompanyStatistics.Domain.DTOs.Company;
+using CompanyStatistics.Domain.Extensions;
 using CompanyStatistics.Infrastructure.Entities;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using System.Data;
+using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace CompanyStatistics.Infrastructure.Repositories
 {
@@ -47,6 +50,28 @@ namespace CompanyStatistics.Infrastructure.Repositories
                 .AsEnumerable()
                 .Select(x => DataRowToEntity<TOutput>(x))
                 .ToList();
+        }
+
+        public async Task BulkInsertAsync(List<CompanyRequestDto> companies)
+        {
+            var properties = typeof(CompanyRequestDto).GetProperties().Where(x => x.CanRead).ToArray();
+
+            var columnNames = GenerateColumnsForInsert(properties);
+
+            var cmdText = companies.Aggregate(new StringBuilder(),
+                (sb, entity) => sb.AppendLine(@$"
+                    INSERT INTO {TableName} ({columnNames})
+                    VALUES('{entity.Id}', '{entity.CompanyIndex}', '{entity.Name.ReplaceQuotes}', '{entity.Website.ReplaceQuotes}', 
+                    '{entity.Country.ReplaceQuotes}', '{entity.Description.ReplaceQuotes}', {entity.Founded}, 
+                    '{entity.Industry.ReplaceQuotes}', {entity.NumberOfEmployees}, {entity.IsDeleted})")
+                );
+
+            using (var connection = new SqlConnection(_dbConnectionString))
+            {
+                connection.Open();
+                SqlCommand cmd = new SqlCommand(cmdText.ToString(), connection);
+                await cmd.ExecuteNonQueryAsync();
+            }
         }
 
         public async Task<List<CompanyResponseDto>> GetCompaniesByDate(DateTime date)

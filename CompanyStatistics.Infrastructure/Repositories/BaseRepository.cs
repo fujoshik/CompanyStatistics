@@ -6,6 +6,7 @@ using CompanyStatistics.Infrastructure.Extensions;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using System.Data;
+using System.Reflection;
 using System.Text;
 
 namespace CompanyStatistics.Infrastructure.Repositories
@@ -67,6 +68,34 @@ namespace CompanyStatistics.Infrastructure.Repositories
                 await cmd.ExecuteNonQueryAsync();
             }
         }
+        protected string GenerateColumnsForInsert(PropertyInfo[] properties)
+        {
+            return string.Join(", ", properties.Select(x => x.Name));
+        }
+
+        protected StringBuilder GenerateValuesForInsert<TInput>(TInput entity, PropertyInfo[] properties)
+        {
+            StringBuilder values = new StringBuilder();
+
+            for (int i = 0; i < properties.Count(); i++)
+            {
+                if (properties[i].PropertyType == typeof(string) || properties[i].PropertyType == typeof(Guid))
+                {
+                    values.Append($"'{properties[i].GetValue(entity).ToString().Replace("'", "''").Replace("\"", "")}'");
+                }
+                else
+                {
+                    values.Append($"{properties[i].GetValue(entity)}");
+                }
+
+                if (i + 1 < properties.Count())
+                {
+                    values.Append(',');
+                }
+            }
+
+            return values;
+        }
 
         protected virtual TOutput DataRowToEntity<TOutput>(DataRow dataRow)
             where TOutput : new()
@@ -94,25 +123,9 @@ namespace CompanyStatistics.Infrastructure.Repositories
             await CreateDbIfNotExist();
 
             var properties = typeof(TInput).GetProperties().Where(x => x.CanRead).ToArray();
-            string columnNames = string.Join(", ", properties.Select(x => x.Name));
-            StringBuilder values = new StringBuilder();
 
-            for (int i = 0; i < properties.Count(); i++)
-            {
-                if (properties[i].PropertyType == typeof(string) || properties[i].PropertyType == typeof(Guid))
-                {
-                    values.Append($"'{properties[i].GetValue(entity).ToString().Replace("'", "''").Replace("\"", "")}'");
-                }
-                else
-                {
-                    values.Append($"{properties[i].GetValue(entity)}");
-                }
-
-                if (i + 1 < properties.Count())
-                {
-                    values.Append(',');
-                }
-            }
+            var columnNames = GenerateColumnsForInsert(properties);
+            var values = GenerateValuesForInsert(entity, properties);
 
             var dataTable = new DataTable();
             using (var connection = new SqlConnection(_dbConnectionString))

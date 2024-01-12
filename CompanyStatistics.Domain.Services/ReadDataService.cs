@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CompanyStatistics.Domain.Abstraction.Repositories;
 using CompanyStatistics.Domain.Abstraction.Services;
 using CompanyStatistics.Domain.DTOs.Company;
 using CompanyStatistics.Domain.DTOs.File;
@@ -16,12 +17,15 @@ namespace CompanyStatistics.Domain.Services
         private readonly IMapper _mapper;
         private readonly IMongoDbService _mongoDbService;
         private readonly ICompanyService _companyService;
+        private readonly IUnitOfWork _unitOfWork;
 
         public ReadDataService(IMapper mapper,
+                               IUnitOfWork unitOfWork,
                                IMongoDbService mongoDbService,
                                ICompanyService companyService)
         {
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
             _companyService = companyService;
             _mongoDbService = mongoDbService;
         }
@@ -49,10 +53,12 @@ namespace CompanyStatistics.Domain.Services
 
             var records = csv.GetRecords<OrganizationDto>().ToList();
 
-            for (int i = startIndex; i <= records.Count; i++)
-            {
-                await InsertCompanyAndSaveReadFile(fileName, records[i - 1]);
-            }
+            var companies = new List<CompanyRequestDto>();
+            records.ForEach(r => companies.Add(_mapper.Map<CompanyRequestDto>(r)));
+
+            await _unitOfWork.CompanyRepository.BulkInsertAsync(companies);
+
+            await SaveReadDocumentNameAndIndex(fileName, companies.Count);
         }
 
         public async Task ReadExcelFileAsync(string path)
