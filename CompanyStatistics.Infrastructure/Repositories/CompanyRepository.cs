@@ -1,13 +1,12 @@
 ﻿using CompanyStatistics.Domain.Abstraction.Repositories;
 using CompanyStatistics.Domain.Constants;
 using CompanyStatistics.Domain.DTOs.Company;
-using CompanyStatistics.Domain.Extensions;
+using CompanyStatistics.Domain.Exceptions;
 using CompanyStatistics.Infrastructure.Entities;
+using CompanyStatistics.Infrastructure.Extensions;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using System.Data;
-using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace CompanyStatistics.Infrastructure.Repositories
 {
@@ -54,27 +53,26 @@ namespace CompanyStatistics.Infrastructure.Repositories
 
         public async Task BulkInsertAsync(List<CompanyRequestDto> companies)
         {
-            var properties = typeof(CompanyRequestDto).GetProperties().Where(x => x.CanRead).ToArray();
-
-            var columnNames = GenerateColumnsForInsert(properties);
-
-            var cmdText = companies.Aggregate(new StringBuilder(),
-                (sb, entity) => sb.AppendLine(@$"
-                    INSERT INTO {TableName} ({columnNames})
-                    VALUES('{entity.Id}', '{entity.CompanyIndex}', '{entity.Name.ReplaceQuotes}', '{entity.Website.ReplaceQuotes}', 
-                    '{entity.Country.ReplaceQuotes}', '{entity.Description.ReplaceQuotes}', {entity.Founded}, 
-                    '{entity.Industry.ReplaceQuotes}', {entity.NumberOfEmployees}, {entity.IsDeleted})")
-                );
-
-            using (var connection = new SqlConnection(_dbConnectionString))
+            using (SqlBulkCopy sqlBulk = new SqlBulkCopy(_dbConnectionString))
             {
-                connection.Open();
-                SqlCommand cmd = new SqlCommand(cmdText.ToString(), connection);
-                await cmd.ExecuteNonQueryAsync();
-            }
+                sqlBulk.DestinationTableName = "dbo.Companies";
+
+                sqlBulk.ColumnMappings.Add(nameof(CompanyRequestDto.Id), "Id");
+                sqlBulk.ColumnMappings.Add(nameof(CompanyRequestDto.CompanyIndex), "CompanyIndex");
+                sqlBulk.ColumnMappings.Add(nameof(CompanyRequestDto.Name), "Name");
+                sqlBulk.ColumnMappings.Add(nameof(CompanyRequestDto.Website), "Website");
+                sqlBulk.ColumnMappings.Add(nameof(CompanyRequestDto.Country), "Country");
+                sqlBulk.ColumnMappings.Add(nameof(CompanyRequestDto.Description), "Description");
+                sqlBulk.ColumnMappings.Add(nameof(CompanyRequestDto.Founded), "Founded");
+                sqlBulk.ColumnMappings.Add(nameof(CompanyRequestDto.Industry), "Industry");
+                sqlBulk.ColumnMappings.Add(nameof(CompanyRequestDto.NumberOfEmployees), "NumberOfEmployees");
+                sqlBulk.ColumnMappings.Add(nameof(CompanyRequestDto.IsDeleted), "IsDeleted");
+
+                await sqlBulk.WriteToServerAsync(companies.ToDataTable());
+            }         
         }
 
-        public async Task<List<CompanyResponseDto>> GetCompaniesByDate(DateTime date)
+        public async Task<List<CompanyResponseDto>> GetCompaniesByDateAsync(DateTime date)
         {
             await CreateDbIfNotExist();
 
@@ -92,6 +90,32 @@ namespace CompanyStatistics.Infrastructure.Repositories
                 }
             }
             return DataTableToCollection<CompanyResponseDto>(dataTable);
+        }
+
+        public async Task<CompanyResponseDto> GetCompanyByNameAsync(string name)
+        {
+            await CreateDbIfNotExist();
+
+            var dataTable = new DataTable();
+
+            using (var connection = new SqlConnection(_dbConnectionString))
+            {
+                connection.Open();
+                SqlCommand cmd = new SqlCommand(SqlQueryConstants.GET_COMPANY_BY_NAME, connection);
+                cmd.Parameters.Add(new SqlParameter("@Name", name));
+
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    dataTable.Load(reader);
+                }
+            }
+
+            if (dataTable.Rows.Count == 0)
+            {
+                throw new NotFoundException();
+            }
+
+            return DataRowToEntity<CompanyResponseDto>(dataTable.Rows[0]);
         }
 
         public async Task<List<CompanyResponseDto>> GetTopNCompaniesByEmployeeCountAndDateAsync(int n, DateTime? date = null)

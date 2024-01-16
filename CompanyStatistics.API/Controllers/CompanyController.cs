@@ -4,6 +4,8 @@ using CompanyStatistics.Domain.DTOs.Company;
 using CompanyStatistics.Domain.Enums;
 using CompanyStatistics.Domain.Pagination;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Diagnostics;
 
 namespace CompanyStatistics.API.Controllers
 {
@@ -13,18 +15,27 @@ namespace CompanyStatistics.API.Controllers
     {
         private readonly IReadFilesService _readDataService;
         private readonly ICompanyService _companyService;
+        private readonly ILogger<CompanyController> _logger;
 
         public CompanyController(IReadFilesService readDataService,
-                                 ICompanyService companyService)
+                                 ICompanyService companyService,
+                                 ILogger<CompanyController> logger)
         {
             _readDataService = readDataService;
             _companyService = companyService;
+            _logger = logger;
         }
 
         [HttpGet("read-data")]
         public async Task<IActionResult> ReadData()
         {
+            Stopwatch watch = Stopwatch.StartNew();
+            watch.Start();
+
             await _readDataService.ReadFilesAsync();
+
+            watch.Stop();
+            _logger.LogInformation(watch.Elapsed.Seconds.ToString());
 
             return Ok();
         }

@@ -69,5 +69,10 @@ namespace CompanyStatistics.Domain.Services
 
             await _unitOfWork.CompanyRepository.DeleteAsync(id);
         }
+
+        public async Task<CompanyResponseDto> GetCompanyByNameAsync(string companyName)
+        {
+            return await _unitOfWork.CompanyRepository.GetCompanyByNameAsync(companyName);
+        }
     }
 }

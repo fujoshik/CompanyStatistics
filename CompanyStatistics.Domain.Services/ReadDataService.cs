@@ -6,9 +6,7 @@ using CompanyStatistics.Domain.DTOs.File;
 using CompanyStatistics.Domain.DTOs.Organization;
 using CsvHelper;
 using CsvHelper.Configuration;
-using OfficeOpenXml;
 using System.Globalization;
-using System.Text.RegularExpressions;
 
 namespace CompanyStatistics.Domain.Services
 {
@@ -16,17 +14,14 @@ namespace CompanyStatistics.Domain.Services
     {
         private readonly IMapper _mapper;
         private readonly IMongoDbService _mongoDbService;
-        private readonly ICompanyService _companyService;
         private readonly IUnitOfWork _unitOfWork;
 
         public ReadDataService(IMapper mapper,
                                IUnitOfWork unitOfWork,
-                               IMongoDbService mongoDbService,
-                               ICompanyService companyService)
+                               IMongoDbService mongoDbService)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
-            _companyService = companyService;
             _mongoDbService = mongoDbService;
         }
 
@@ -51,62 +46,12 @@ namespace CompanyStatistics.Domain.Services
 
             using var csv = new CsvReader(streamReader, config);
 
-            var records = csv.GetRecords<OrganizationDto>().ToList();
-
-            var companies = new List<CompanyRequestDto>();
-            records.ForEach(r => companies.Add(_mapper.Map<CompanyRequestDto>(r)));
+            var records = csv.GetRecords<OrganizationDto>().AsQueryable();
+            var companies = _mapper.ProjectTo<CompanyRequestDto>(records).ToList();
 
             await _unitOfWork.CompanyRepository.BulkInsertAsync(companies);
 
-            await SaveReadDocumentNameAndIndex(fileName, companies.Count);
-        }
-
-        public async Task ReadExcelFileAsync(string path)
-        {
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
-            using (ExcelPackage package = new ExcelPackage(new FileInfo(path)))
-            {
-                int startIndex = 1;
-
-                var sheet = package.Workbook.Worksheets["Лист1"];
-                var result = sheet.Cells[1, 1].Value.ToString().Split(",");
-
-                var file = await _mongoDbService.GetFileByNameAsync(path);
-
-                if (file != null)
-                {
-                    startIndex = file.Index + 1;
-                }
-
-                for (int i = startIndex + 1; i <= sheet.Dimension.Rows; i++)
-                {
-                    var row = Regex.Split(sheet.Cells[i, 1].Value.ToString().Replace("'", "''").Replace("\"", ""), @",(?!\s)");
-                    var organization = new OrganizationDto()
-                    {
-                        Index = int.Parse(row[0]),
-                        OrganizationId = row[1],
-                        Name = row[2],
-                        Website = row[3],
-                        Country = row[4],
-                        Description = row[5],
-                        Founded = row[6],
-                        Industry = row[7],
-                        NumberOfEmployees = int.Parse(row[8])
-                    };
-
-                    await InsertCompanyAndSaveReadFile(path, organization);
-                }
-            }
-        }
-
-        private async Task InsertCompanyAndSaveReadFile(string path, OrganizationDto organization)
-        {
-            var companyRequest = _mapper.Map<CompanyRequestDto>(organization);
-
-            await _companyService.CreateAsync(companyRequest);
-
-            await SaveReadDocumentNameAndIndex(path, organization.Index);
+            //await SaveReadDocumentNameAndIndex(fileName, companies.Count);
         }
 
         private async Task SaveReadDocumentNameAndIndex(string name, int index)

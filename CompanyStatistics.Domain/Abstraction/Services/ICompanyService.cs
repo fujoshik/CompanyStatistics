@@ -10,5 +10,6 @@ namespace CompanyStatistics.Domain.Abstraction.Services
         Task<CompanyResponseDto> GetByIdAsync(string id);
         Task<PaginatedResult<CompanyResponseDto>> GetPageAsync(PagingInfo pagingInfo);
         Task DeleteAsync(string id);
+        Task<CompanyResponseDto> GetCompanyByNameAsync(string companyName);
     }
 }

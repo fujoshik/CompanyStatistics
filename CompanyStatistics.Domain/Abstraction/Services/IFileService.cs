@@ -4,6 +4,7 @@
     {
         void MoveFile(string file);
         string[] GetFilesFromMainDirectory();
+        MemoryStream ReturnFileAsStream(string fileName);
         void WriteAJsonFileWithStatistics(object statistics, string fileName);
     }
 }

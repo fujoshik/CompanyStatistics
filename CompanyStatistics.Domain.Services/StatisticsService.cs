@@ -7,13 +7,10 @@ namespace CompanyStatistics.Domain.Services
     public class StatisticsService : IStatisticsService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IReadFilesService _readDataService;
 
-        public StatisticsService(IUnitOfWork unitOfWork,
-                                 IReadFilesService readDataService)
+        public StatisticsService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _readDataService = readDataService;
         }
 
         public async Task<int> CountEmployeesByIndustryAsync(string industry)

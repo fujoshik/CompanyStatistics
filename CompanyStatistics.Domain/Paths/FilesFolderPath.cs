@@ -5,5 +5,6 @@
         public string MainPath { get; set; }
         public string ReadFilesPath { get; set; }
         public string StatisticsPath { get; set; }
+        public string PdfFilesPath { get; set; }
     }
 }

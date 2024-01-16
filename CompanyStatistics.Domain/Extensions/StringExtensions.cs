@@ -2,9 +2,9 @@
 {
     public static class StringExtensions
     {
-        public static void ReplaceQuotes(this string value)
+        public static string ReplaceQuotes(this string value)
         {
-            value.Replace("'", "''").Replace("\"", "");
+            return value.Replace("'", "''").Replace("\"", "");
         }
     }
 }

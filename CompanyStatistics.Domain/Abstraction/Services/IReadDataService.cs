@@ -3,6 +3,5 @@
     public interface IReadDataService
     {
         Task ReadCsvFileAsync(string fileName);
-        Task ReadExcelFileAsync(string path);
     }
 }

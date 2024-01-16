@@ -23,7 +23,7 @@ namespace CompanyStatistics.Domain.DTOs.Organization
         public string Description { get; set; }
 
         [Name("Founded")]
-        public string Founded { get; set; }
+        public int Founded { get; set; }
 
         [Name("Industry")]
         public string Industry { get; set; }

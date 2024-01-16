@@ -23,7 +23,7 @@ namespace CompanyStatistics.API.Extensions
                 q.AddJob<DailyStatisticsJob>(dailyStatisticsJob)
                     .AddTrigger(t => t
                         .ForJob(dailyStatisticsJob)
-                        .WithCronSchedule(CronExpressionConstants.EVERY_MINUTE));
+                        .WithCronSchedule(CronExpressionConstants.EVERY_DAY_AT_MIDNIGHT));
 
                 var readDataJob = JobKey.Create(nameof(ReadDataJob));
                 q.AddJob<ReadDataJob>(readDataJob)

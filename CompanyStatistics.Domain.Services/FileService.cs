@@ -35,7 +35,17 @@ namespace CompanyStatistics.Domain.Services
         {
             var jsonString = JsonConvert.SerializeObject(statistics);
 
-            File.WriteAllText(_statisticsDirectory + fileName, jsonString);
+            if (File.Exists(_statisticsDirectory + fileName))
+            {
+                File.Delete(_statisticsDirectory + fileName);
+            }
+
+            File.WriteAllText(_statisticsDirectory + fileName, jsonString == null ? "" : jsonString);
+        }
+
+        public MemoryStream ReturnFileAsStream(string fileName)
+        {
+            return new MemoryStream(File.ReadAllBytes(fileName));
         }
     }
 }

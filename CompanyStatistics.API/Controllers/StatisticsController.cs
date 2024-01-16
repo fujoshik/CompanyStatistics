@@ -11,15 +11,12 @@ namespace CompanyStatistics.API.Controllers
     {
         private readonly IStatisticsService _statisticsService;
         private readonly IMemoryCache _cache;
-        private readonly ILogger<StatisticsController> _logger;
 
         public StatisticsController(IStatisticsService statisticsService,
-                                    IMemoryCache memoryCache,
-                                    ILogger<StatisticsController> logger)
+                                    IMemoryCache memoryCache)
         {
             _statisticsService = statisticsService;
             _cache = memoryCache;
-            _logger = logger;
         }
 
         [HttpGet("employee-count-by-industry")]
@@ -35,10 +32,6 @@ namespace CompanyStatistics.API.Controllers
                     .SetPriority(CacheItemPriority.Normal);
 
                 _cache.Set($"employee-count-by-industry-{industry}", count, cacheEntryOptions);
-            }
-            else
-            {
-                _logger.LogInformation("Found in cache");
             }
 
             return Ok(count);

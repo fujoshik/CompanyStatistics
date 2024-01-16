@@ -24,10 +24,6 @@ namespace CompanyStatistics.Domain.Services
                 {
                     await _readDataService.ReadCsvFileAsync(file);
                 }
-                else if (file.EndsWith(".xlsx") || file.EndsWith(".xls"))
-                {
-                    await _readDataService.ReadExcelFileAsync(file);
-                }
 
                 _fileService.MoveFile(file);
             }
