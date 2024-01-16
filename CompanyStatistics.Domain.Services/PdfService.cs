@@ -3,6 +3,7 @@ using CompanyStatistics.Domain.DTOs.Company;
 using CompanyStatistics.Domain.Paths;
 using Microsoft.Extensions.Options;
 using QuestPDF.Fluent;
+using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 
 namespace CompanyStatistics.Domain.Services
@@ -35,20 +36,26 @@ namespace CompanyStatistics.Domain.Services
             {
                 container.Page(page =>
                 {
-                    page.Header().AlignCenter().Text($"Information about {company.Name}").FontSize(30);
+                    page.Margin(1, Unit.Inch);
+
+                    page.Header()
+                    .Text($"Information about {company.Name}")
+                    .FontColor(Colors.Blue.Darken2)
+                    .FontSize(30)
+                    .SemiBold();
+
                     page.Content()
-                    .AlignCenter()
                     .PaddingVertical(1, Unit.Centimetre)
                     .Column(x =>
                     {
                         x.Spacing(20);
-                        x.Item().Text($"Name: {company.Name}");
-                        x.Item().Text($"Website: {company.Website}");
-                        x.Item().Text($"Country: {company.Country}");
-                        x.Item().Text($"Description: {company.Description}");
-                        x.Item().Text($"Founded in year {company.Founded}");
-                        x.Item().Text($"Industry: {company.Industry}");
-                        x.Item().Text($"Number of employees: {company.NumberOfEmployees}");
+                        x.Item().Text($"Name: {company.Name}").FontSize(18);
+                        x.Item().Text($"Website: {company.Website}").FontSize(18);
+                        x.Item().Text($"Country: {company.Country}").FontSize(18);
+                        x.Item().Text($"Description: {company.Description}").FontSize(18);
+                        x.Item().Text($"Founded in year {company.Founded}").FontSize(18);
+                        x.Item().Text($"Industry: {company.Industry}").FontSize(18);
+                        x.Item().Text($"Number of employees: {company.NumberOfEmployees}").FontSize(18);
                     });
                 });
             }).GeneratePdf(fileName);
