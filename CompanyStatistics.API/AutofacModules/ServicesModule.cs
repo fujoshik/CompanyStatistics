@@ -1,6 +1,5 @@
 ﻿using Autofac;
 using CompanyStatistics.Domain.Services;
-using Microsoft.AspNetCore.Authentication;
 
 namespace CompanyStatistics.API.AutofacModules
 {

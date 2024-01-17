@@ -4,6 +4,7 @@ namespace CompanyStatistics.Domain.Abstraction.Repositories
 {
     public interface ICompanyRepository : IBaseRepository
     {
+        Task<HashSet<string>> GetAllCompanyIdsAsync();
         Task<int> CountEmployeesByIndustryAsync(string industry);
         Task BulkInsertAsync(List<CompanyRequestDto> companies);
         Task<CompanyResponseDto> GetCompanyByNameAsync(string name);

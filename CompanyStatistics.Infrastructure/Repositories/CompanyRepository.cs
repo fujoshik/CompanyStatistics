@@ -153,6 +153,7 @@ namespace CompanyStatistics.Infrastructure.Repositories
         {
             await CreateDbIfNotExist();
 
+            int result = 0;
             var dataTable = new DataTable();
             using (var connection = new SqlConnection(_dbConnectionString))
             {
@@ -165,20 +166,17 @@ namespace CompanyStatistics.Infrastructure.Repositories
                     dataTable.Load(reader);
                 }
             }
-            int result = 0;
 
-            if (dataTable.Rows.Count == 0)
+            if (dataTable.Rows.Count > 0)
             {
-                return result;
-            }
-
-            foreach (DataRow row in dataTable.Rows)
-            {
-                if (row != null)
+                foreach (DataRow row in dataTable.Rows)
                 {
-                    result += int.Parse(row["NumberOfEmployees"].ToString());
+                    if (row != null)
+                    {
+                        result += int.Parse(row["NumberOfEmployees"].ToString());
+                    }
                 }
-            }
+            }    
 
             return result;
         }
@@ -220,6 +218,36 @@ namespace CompanyStatistics.Infrastructure.Repositories
                 }
             }
             return DataTableToCollection<CompanyResponseDto>(dataTable);
+        }
+
+        public async Task<HashSet<string>> GetAllCompanyIdsAsync()
+        {
+            var result = new HashSet<string>();
+            var dataTable = new DataTable();
+
+            using (var connection = new SqlConnection(_dbConnectionString))
+            {
+                connection.Open();
+                SqlCommand cmd = new SqlCommand(SqlQueryConstants.GET_ALL_COMPANY_IDS, connection);
+
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    dataTable.Load(reader);
+                }
+            }
+
+            if (dataTable.Rows.Count > 0)
+            {
+                foreach (DataRow row in dataTable.Rows)
+                {
+                    if (row != null)
+                    {
+                        result.Add(row["Id"].ToString());
+                    }
+                }
+            }
+            
+            return result;
         }
     }
 }

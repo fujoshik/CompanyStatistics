@@ -23,5 +23,7 @@
         public const string GET_COMPANIES_BY_DATE = $@"{USE_COMPANYSTATISTICSDB} SELECT * FROM Companies WHERE IsDeleted = 0 AND CAST(DateRead AS date) = CAST(@Date AS date)";
 
         public const string GET_COMPANY_BY_NAME = $@"{USE_COMPANYSTATISTICSDB} SELECT * FROM Companies WHERE IsDeleted = 0 AND Name = @Name";
+
+        public const string GET_ALL_COMPANY_IDS = $@"{USE_COMPANYSTATISTICSDB} SELECT Id FROM Companies";
     }
 }

@@ -30,6 +30,12 @@ namespace CompanyStatistics.API.Extensions
                     .AddTrigger(t => t
                         .ForJob(readDataJob)
                         .WithCronSchedule(CronExpressionConstants.EVERY_SIX_HOURS));
+
+                var getIdsJob = JobKey.Create(nameof(GetCompanyIdsFromDbJob));
+                q.AddJob<GetCompanyIdsFromDbJob>(getIdsJob)
+                    .AddTrigger(t => t
+                        .ForJob(getIdsJob)
+                        .WithCronSchedule(CronExpressionConstants.EVERY_SECOND));
             });
 
             services.AddQuartzHostedService();

@@ -4,7 +4,6 @@ using CompanyStatistics.Domain.DTOs.Company;
 using CompanyStatistics.Domain.Enums;
 using CompanyStatistics.Domain.Pagination;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Diagnostics;
 
 namespace CompanyStatistics.API.Controllers

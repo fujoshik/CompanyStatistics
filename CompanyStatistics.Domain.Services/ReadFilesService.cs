@@ -6,9 +6,11 @@ namespace CompanyStatistics.Domain.Services
     {
         private readonly IReadDataService _readDataService;
         private readonly IFileService _fileService;
+        
 
         public ReadFilesService(IReadDataService readDataService,
-                                IFileService fileService)
+                                IFileService fileService
+            )
         {
             _readDataService = readDataService;
             _fileService = fileService;

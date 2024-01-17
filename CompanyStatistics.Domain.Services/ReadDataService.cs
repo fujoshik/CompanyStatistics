@@ -15,27 +15,22 @@ namespace CompanyStatistics.Domain.Services
         private readonly IMapper _mapper;
         private readonly IMongoDbService _mongoDbService;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IGetInfoFromDbService _getInfoFromDbService;
+        private HashSet<string> _companyIds;
 
         public ReadDataService(IMapper mapper,
                                IUnitOfWork unitOfWork,
-                               IMongoDbService mongoDbService)
+                               IMongoDbService mongoDbService,
+                               IGetInfoFromDbService getInfoFromDbService)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
             _mongoDbService = mongoDbService;
+            _getInfoFromDbService = getInfoFromDbService;
         }
 
         public async Task ReadCsvFileAsync(string fileName)
         {
-            int startIndex = 1;
-
-            var file = await _mongoDbService.GetFileByNameAsync(fileName);
-
-            if (file != null)
-            {
-                startIndex = file.Index;
-            }
-
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
                 Delimiter = ",",
@@ -46,12 +41,32 @@ namespace CompanyStatistics.Domain.Services
 
             using var csv = new CsvReader(streamReader, config);
 
-            var records = csv.GetRecords<OrganizationDto>().AsQueryable();
-            var companies = _mapper.ProjectTo<CompanyRequestDto>(records).ToList();
+            var records = csv.GetRecords<OrganizationDto>().ToList();
+
+            records = FilterExisitingRecords(records);
+
+            var companies = _mapper.ProjectTo<CompanyRequestDto>(records.AsQueryable()).ToList();
+
+            UpdateCompanyIds(companies);
 
             await _unitOfWork.CompanyRepository.BulkInsertAsync(companies);
+        }
 
-            //await SaveReadDocumentNameAndIndex(fileName, companies.Count);
+        private void UpdateCompanyIds(List<CompanyRequestDto> companies)
+        {
+            if (companies.Count > 0)
+            {
+                _getInfoFromDbService.UpdateCompanyIds(companies.Select(x => x.Id));
+            }
+        }
+
+        private List<OrganizationDto> FilterExisitingRecords(IEnumerable<OrganizationDto> records)
+        {
+            _companyIds = GetInfoFromDbService.CompanyIds;
+
+            var result = records.Where(x => !_companyIds.Contains(x.OrganizationId)).ToList();
+
+            return result;
         }
 
         private async Task SaveReadDocumentNameAndIndex(string name, int index)
