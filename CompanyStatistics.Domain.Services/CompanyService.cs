@@ -2,6 +2,7 @@
 using CompanyStatistics.Domain.Abstraction.Repositories;
 using CompanyStatistics.Domain.Abstraction.Services;
 using CompanyStatistics.Domain.DTOs.Company;
+using CompanyStatistics.Domain.Extensions;
 using CompanyStatistics.Domain.Pagination;
 
 namespace CompanyStatistics.Domain.Services
@@ -10,27 +11,41 @@ namespace CompanyStatistics.Domain.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IIndustryService _industryService;
 
         public CompanyService(IUnitOfWork unitOfWork,
-                              IMapper mapper)
+                              IMapper mapper,
+                              IIndustryService industryService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _industryService = industryService;
         }
 
-        public async Task<CompanyResponseDto> CreateAsync(CompanyRequestDto companyDto)
+        public async Task<CompanyResponseDto> CreateAsync(CompanyCreateDto company)
         {
-            if (companyDto == null)
+            if (company == null)
             {
-                throw new ArgumentNullException(nameof(companyDto));
+                throw new ArgumentNullException(nameof(company));
             }
+
+            var companyDto = _mapper.Map<CompanyRequestDto>(company);
 
             if (companyDto.Id == null)
             {
                 companyDto.Id = Guid.NewGuid().ToString();
-            }            
+            }
 
-            return await _unitOfWork.CompanyRepository.InsertAsync<CompanyRequestDto, CompanyResponseDto>(companyDto);
+            await _industryService.CreateIndustryIfNotExist(companyDto);
+
+            var request = _mapper.Map<CompanyWithoutIndustryDto>(companyDto);
+
+            var result = await _unitOfWork.CompanyRepository
+                .InsertAsync<CompanyWithoutIndustryDto, CompanyWithoutIndustryDto>(request);
+
+            var responseDto = await AssignIndustriesAsync(result);
+
+            return responseDto;
         }
 
         public async Task<CompanyResponseDto> UpdateAsync(string id, CompanyWithoutIdDto company)
@@ -40,9 +55,14 @@ namespace CompanyStatistics.Domain.Services
                 throw new ArgumentNullException(nameof(company));
             }
 
-            var companyRequestDto = _mapper.Map<CompanyRequestDto>(company);
+            var companyWithoutIndustry = _mapper.Map<CompanyWithoutIndustryDto>(company);
 
-            return await _unitOfWork.CompanyRepository.UpdateAsync<CompanyRequestDto, CompanyResponseDto>(id, companyRequestDto);
+            var result = await _unitOfWork.CompanyRepository.UpdateAsync<CompanyWithoutIndustryDto, CompanyWithoutIndustryDto>(
+                id, companyWithoutIndustry);
+
+            var responseDto = await AssignIndustriesAsync(result);
+
+            return responseDto;
         }
 
         public async Task<CompanyResponseDto> GetByIdAsync(string id)
@@ -52,12 +72,27 @@ namespace CompanyStatistics.Domain.Services
                 throw new ArgumentNullException(nameof(id));
             }
 
-            return await _unitOfWork.CompanyRepository.GetByIdAsync<CompanyResponseDto>(id);
+            var result = await _unitOfWork.CompanyRepository.GetByIdAsync<CompanyWithoutIndustryDto>(id);
+
+            var responseDto = await AssignIndustriesAsync(result);
+
+            return responseDto;
         }
 
         public async Task<PaginatedResult<CompanyResponseDto>> GetPageAsync(PagingInfo pagingInfo)
         {
-            return await _unitOfWork.CompanyRepository.GetPageAsync<CompanyResponseDto>(pagingInfo.PageNumber, pagingInfo.PageSize);
+            var companies = await _unitOfWork.CompanyRepository
+                .GetPageAsync<CompanyWithoutIndustryDto>(pagingInfo.PageNumber, pagingInfo.PageSize);
+
+            var result = new List<CompanyResponseDto>();
+
+            foreach (var company in companies.Content)
+            {
+                var companyResponse = await AssignIndustriesAsync(company);
+                result.Add(companyResponse);
+            }
+
+            return result.Paginate(0, 10);
         }
 
         public async Task DeleteAsync(string id)
@@ -73,6 +108,16 @@ namespace CompanyStatistics.Domain.Services
         public async Task<CompanyResponseDto> GetCompanyByNameAsync(string companyName)
         {
             return await _unitOfWork.CompanyRepository.GetCompanyByNameAsync(companyName);
+        }
+
+        private async Task<CompanyResponseDto> AssignIndustriesAsync(CompanyWithoutIndustryDto companyWithoutIndustry)
+        {
+            var responseDto = _mapper.Map<CompanyResponseDto>(companyWithoutIndustry);
+
+            var industries = await _unitOfWork.CompanyIndustriesRepository.GetIndustriesByCompanyIdAsync(companyWithoutIndustry.Id);
+            responseDto.Industries = industries;
+
+            return responseDto;
         }
     }
 }

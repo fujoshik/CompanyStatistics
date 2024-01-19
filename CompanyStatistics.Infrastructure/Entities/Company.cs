@@ -8,7 +8,6 @@
         public string Country { get; set; }
         public string Description { get; set; }
         public int Founded { get; set; }
-        public string Industry { get; set; }
         public int NumberOfEmployees { get; set; }
         public int IsDeleted { get; set; }
         public DateTime DateRead { get; set; }

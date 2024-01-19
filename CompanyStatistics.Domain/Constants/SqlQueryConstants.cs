@@ -24,6 +24,12 @@
 
         public const string GET_COMPANY_BY_NAME = $@"{USE_COMPANYSTATISTICSDB} SELECT * FROM Companies WHERE IsDeleted = 0 AND Name = @Name";
 
+        public const string GET_INDUSTRIES_BY_COMPANYID = $@"{USE_COMPANYSTATISTICSDB} SELECT IndustryName FROM Company_Industries WHERE IsDeleted = 0 AND CompanyId = @CompanyId";
+
         public const string GET_ALL_COMPANY_IDS = $@"{USE_COMPANYSTATISTICSDB} SELECT Id FROM Companies";
+
+        public const string GET_ALL_INDUSTRIES = $@"{USE_COMPANYSTATISTICSDB} SELECT Name FROM Industries";
+
+        public const string COUNT_COMPANIES = $@"{USE_COMPANYSTATISTICSDB} SELECT COUNT(Id) AS Count FROM Companies";
     }
 }

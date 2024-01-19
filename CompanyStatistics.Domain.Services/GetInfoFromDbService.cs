@@ -7,6 +7,7 @@ namespace CompanyStatistics.Domain.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private static HashSet<string> _companyIds;
+        private static HashSet<string> _industries;
         public static HashSet<string> CompanyIds
         {
             get
@@ -16,6 +17,18 @@ namespace CompanyStatistics.Domain.Services
             set
             {
                 _companyIds = value;
+            }
+        }
+
+        public static HashSet<string> Industries
+        {
+            get
+            {
+                return _industries;
+            }
+            set
+            {
+                _industries = value;
             }
         }
 
@@ -35,6 +48,19 @@ namespace CompanyStatistics.Domain.Services
         public void UpdateCompanyIds(IEnumerable<string> newIds)
         {
             _companyIds.UnionWith(newIds);
+        }
+
+        public async Task SetIndustriesAsync()
+        {
+            if (_industries == null)
+            {
+                _industries = await _unitOfWork.IndustryRepository.GetAllIndustriesAsync();
+            }
+        }
+
+        public void UpdateIndustries(IEnumerable<string> newIndustries)
+        {
+            _industries.UnionWith(newIndustries);
         }
     }
 }

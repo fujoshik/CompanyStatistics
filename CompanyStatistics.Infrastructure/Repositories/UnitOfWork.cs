@@ -9,6 +9,8 @@ namespace CompanyStatistics.Infrastructure.Repositories
         private ICompanyRepository _companyRepository;
         private IAccountRepository _accountRepository;
         private IUserRepository _userRepository;
+        private IIndustryRepository _industryRepository;
+        private ICompanyIndustriesRepository _companyIndustriesRepository;
 
         public UnitOfWork(IConfiguration configuration)
         {
@@ -48,6 +50,30 @@ namespace CompanyStatistics.Infrastructure.Repositories
                     _userRepository = new UserRepository(_configuration);
                 }
                 return _userRepository;
+            }
+        }
+
+        public IIndustryRepository IndustryRepository
+        {
+            get
+            {
+                if (_industryRepository == null)
+                {
+                    _industryRepository = new IndustryRepository(_configuration);
+                }
+                return _industryRepository;
+            }
+        }
+
+        public ICompanyIndustriesRepository CompanyIndustriesRepository
+        {
+            get
+            {
+                if (_companyIndustriesRepository == null)
+                {
+                    _companyIndustriesRepository = new CompanyIndustriesRepository(_configuration);
+                }
+                return _companyIndustriesRepository;
             }
         }
     }

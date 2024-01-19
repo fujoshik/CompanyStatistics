@@ -2,8 +2,8 @@
 using CompanyStatistics.Domain.Constants;
 using CompanyStatistics.Domain.DTOs.Company;
 using CompanyStatistics.Domain.Exceptions;
+using CompanyStatistics.Domain.Extensions;
 using CompanyStatistics.Infrastructure.Entities;
-using CompanyStatistics.Infrastructure.Extensions;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using System.Data;
@@ -20,7 +20,7 @@ namespace CompanyStatistics.Infrastructure.Repositories
 
         protected override TOutput DataRowToEntity<TOutput>(DataRow dataRow)
         {
-            var result = new CompanyResponseDto()
+            var result = new CompanyWithoutIndustryDto()
             {
                 Id = dataRow["Id"].ToString(),
                 CompanyIndex = int.Parse(dataRow["CompanyIndex"].ToString()),
@@ -29,7 +29,6 @@ namespace CompanyStatistics.Infrastructure.Repositories
                 Country = dataRow["Country"].ToString(),
                 Description = dataRow["Description"].ToString(),
                 Founded = int.Parse(dataRow["Founded"].ToString()),
-                Industry = dataRow["Industry"].ToString(),
                 NumberOfEmployees = int.Parse(dataRow["NumberOfEmployees"].ToString()),
                 IsDeleted = bool.Parse(dataRow["IsDeleted"].ToString()),
                 DateRead = DateTime.Parse(dataRow["DateRead"].ToString())
@@ -51,6 +50,37 @@ namespace CompanyStatistics.Infrastructure.Repositories
                 .ToList();
         }
 
+        private async Task<int> CountCompaniesAsync()
+        {
+            await CreateDbIfNotExist();
+
+            var dataTable = new DataTable();
+            using (var connection = new SqlConnection(_dbConnectionString))
+            {
+                connection.Open();
+                SqlCommand cmd = new SqlCommand(SqlQueryConstants.COUNT_COMPANIES, connection);
+
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    dataTable.Load(reader);
+                }
+            }
+
+            if (dataTable.Rows.Count > 0)
+            {
+                return int.Parse(dataTable.Rows[0]["Count"].ToString());
+            }
+
+            return 0;
+        }
+
+        public async Task InsertAsync(CompanyWithoutIndustryDto entity)
+        {
+            entity.CompanyIndex = await CountCompaniesAsync();
+
+            await base.InsertAsync<CompanyWithoutIndustryDto, CompanyWithoutIndustryDto>(entity);
+        }
+
         public async Task BulkInsertAsync(List<CompanyRequestDto> companies)
         {
             using (SqlBulkCopy sqlBulk = new SqlBulkCopy(_dbConnectionString))
@@ -64,7 +94,6 @@ namespace CompanyStatistics.Infrastructure.Repositories
                 sqlBulk.ColumnMappings.Add(nameof(CompanyRequestDto.Country), "Country");
                 sqlBulk.ColumnMappings.Add(nameof(CompanyRequestDto.Description), "Description");
                 sqlBulk.ColumnMappings.Add(nameof(CompanyRequestDto.Founded), "Founded");
-                sqlBulk.ColumnMappings.Add(nameof(CompanyRequestDto.Industry), "Industry");
                 sqlBulk.ColumnMappings.Add(nameof(CompanyRequestDto.NumberOfEmployees), "NumberOfEmployees");
                 sqlBulk.ColumnMappings.Add(nameof(CompanyRequestDto.IsDeleted), "IsDeleted");
 
@@ -149,6 +178,7 @@ namespace CompanyStatistics.Infrastructure.Repositories
             return DataTableToCollection<CompanyResponseDto>(dataTable);
         }
 
+        //change
         public async Task<int> CountEmployeesByIndustryAsync(string industry)
         {
             await CreateDbIfNotExist();
@@ -181,6 +211,7 @@ namespace CompanyStatistics.Infrastructure.Repositories
             return result;
         }
 
+        //change
         public async Task<List<CompanyResponseDto>> GroupCompaniesByCountryAndIndustryAsync(string country, string industry)
         {
             await CreateDbIfNotExist();

@@ -3,11 +3,11 @@ using Quartz;
 
 namespace CompanyStatistics.Domain.Jobs
 {
-    public class GetCompanyIdsFromDbJob : IJob
+    public class GetInfoFromDbJob : IJob
     {
         private readonly IGetInfoFromDbService _getInfoFromDbService;
 
-        public GetCompanyIdsFromDbJob(IGetInfoFromDbService getInfoFromDb)
+        public GetInfoFromDbJob(IGetInfoFromDbService getInfoFromDb)
         {
             _getInfoFromDbService = getInfoFromDb;
         }
@@ -17,6 +17,7 @@ namespace CompanyStatistics.Domain.Jobs
             if (IGetInfoFromDbService.CompanyIds == null)
             {
                 await _getInfoFromDbService.SetCompanyIdsAsync();
+                await _getInfoFromDbService.SetIndustriesAsync();
             }
         }      
     }

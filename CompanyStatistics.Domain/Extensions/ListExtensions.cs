@@ -3,7 +3,7 @@ using CompanyStatistics.Domain.Pagination;
 using System.ComponentModel;
 using System.Data;
 
-namespace CompanyStatistics.Infrastructure.Extensions
+namespace CompanyStatistics.Domain.Extensions
 {
     public static class ListExtensions
     {

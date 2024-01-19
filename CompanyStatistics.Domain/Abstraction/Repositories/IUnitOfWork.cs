@@ -5,5 +5,7 @@
         ICompanyRepository CompanyRepository { get; }
         IAccountRepository AccountRepository { get; }
         IUserRepository UserRepository { get; }
+        IIndustryRepository IndustryRepository { get; }
+        ICompanyIndustriesRepository CompanyIndustriesRepository { get; }
     }
 }

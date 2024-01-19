@@ -13,6 +13,7 @@ namespace CompanyStatistics.API.Extensions
                 mc.AddProfile(new CompanyProfile());
                 mc.AddProfile(new AccountProfile());
                 mc.AddProfile(new UserProfile());
+                mc.AddProfile(new IndustryProfile());
             });
 
         public static IServiceCollection AddQuartzConfiguration(this IServiceCollection services)
@@ -31,10 +32,10 @@ namespace CompanyStatistics.API.Extensions
                         .ForJob(readDataJob)
                         .WithCronSchedule(CronExpressionConstants.EVERY_SIX_HOURS));
 
-                var getIdsJob = JobKey.Create(nameof(GetCompanyIdsFromDbJob));
-                q.AddJob<GetCompanyIdsFromDbJob>(getIdsJob)
+                var getInfoJob = JobKey.Create(nameof(GetInfoFromDbJob));
+                q.AddJob<GetInfoFromDbJob>(getInfoJob)
                     .AddTrigger(t => t
-                        .ForJob(getIdsJob)
+                        .ForJob(getInfoJob)
                         .WithCronSchedule(CronExpressionConstants.EVERY_SECOND));
             });
 

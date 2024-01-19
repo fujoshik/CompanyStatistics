@@ -1,8 +1,8 @@
 ﻿using CompanyStatistics.Domain.Abstraction.Repositories;
 using CompanyStatistics.Domain.Exceptions;
+using CompanyStatistics.Domain.Extensions;
 using CompanyStatistics.Domain.Pagination;
 using CompanyStatistics.Infrastructure.Entities;
-using CompanyStatistics.Infrastructure.Extensions;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using System.Data;
@@ -177,7 +177,7 @@ namespace CompanyStatistics.Infrastructure.Repositories
             using (var connection = new SqlConnection(_dbConnectionString))
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand($"USE CompanyStatisticsDB; SELECT * FROM {TableName} WHERE IsDeleted = 0", connection);
+                SqlCommand cmd = new SqlCommand($"USE CompanyStatisticsDB; SELECT TOP ({pageSize + pageSize * pageNumber}) * FROM {TableName} WHERE IsDeleted = 0", connection);
                 using (var reader = await cmd.ExecuteReaderAsync())
                 {
                     dataTable.Load(reader);
