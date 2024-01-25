@@ -17,7 +17,7 @@ namespace CompanyStatistics.Domain.Jobs
 
         public async Task Execute(IJobExecutionContext context)
         {
-            var yesterdayDate = DateTime.UtcNow.AddDays(-1);
+            var yesterdayDate = DateTime.Now.AddDays(-1);
 
             var topCompaniesByEmployeeCount = await _statisticsService.GetTopNCompaniesByEmployeeCountAndDateAsync(
                 10, yesterdayDate);

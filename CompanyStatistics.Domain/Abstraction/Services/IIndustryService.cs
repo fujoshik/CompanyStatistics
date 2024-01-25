@@ -5,7 +5,7 @@ namespace CompanyStatistics.Domain.Abstraction.Services
 {
     public interface IIndustryService
     {
-        Task CreateIndustryIfNotExist(CompanyRequestDto companyRequest);
+        Task CreateIndustryIfNotExistAsync(CompanyRequestDto companyRequest);
         Task SeparateIndustriesAndSaveThemAsync(List<IndustryRequestDto> industries);
     }
 }

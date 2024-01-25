@@ -11,6 +11,8 @@ namespace CompanyStatistics.Infrastructure.Mapper
         {
             CreateMap<CompanyCreateDto, CompanyRequestDto>();
 
+            CreateMap<CompanyRequestDto, CompanyWithouIndustryRequestDto>();
+
             CreateMap<OrganizationDto, CompanyRequestDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(x => x.OrganizationId))
                 .ForMember(dest => dest.CompanyIndex, opt => opt.MapFrom(x => x.Index));

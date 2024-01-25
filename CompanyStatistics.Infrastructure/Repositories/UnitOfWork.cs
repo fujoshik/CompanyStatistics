@@ -1,4 +1,5 @@
-﻿using CompanyStatistics.Domain.Abstraction.Repositories;
+﻿using AutoMapper;
+using CompanyStatistics.Domain.Abstraction.Repositories;
 using Microsoft.Extensions.Configuration;
 
 namespace CompanyStatistics.Infrastructure.Repositories
@@ -6,15 +7,17 @@ namespace CompanyStatistics.Infrastructure.Repositories
     public class UnitOfWork : IUnitOfWork
     {
         private readonly IConfiguration _configuration;
+        private readonly IMapper _mapper;
         private ICompanyRepository _companyRepository;
         private IAccountRepository _accountRepository;
         private IUserRepository _userRepository;
         private IIndustryRepository _industryRepository;
         private ICompanyIndustriesRepository _companyIndustriesRepository;
 
-        public UnitOfWork(IConfiguration configuration)
+        public UnitOfWork(IConfiguration configuration, IMapper mapper)
         {
             _configuration = configuration;
+            _mapper = mapper;
         }
 
         public ICompanyRepository CompanyRepository
@@ -23,7 +26,7 @@ namespace CompanyStatistics.Infrastructure.Repositories
             {
                 if (_companyRepository== null)
                 {
-                    _companyRepository = new CompanyRepository(_configuration);
+                    _companyRepository = new CompanyRepository(_configuration, _mapper);
                 }
                 return _companyRepository;
             }

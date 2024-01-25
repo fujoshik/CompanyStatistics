@@ -1,5 +1,6 @@
 ﻿using CompanyStatistics.Domain.Abstraction.Repositories;
 using CompanyStatistics.Domain.Abstraction.Services;
+using CompanyStatistics.Domain.DTOs.Company;
 using CompanyStatistics.Domain.DTOs.CompanyIndustry;
 using CompanyStatistics.Domain.DTOs.Organization;
 
@@ -35,6 +36,28 @@ namespace CompanyStatistics.Domain.Services
             }
 
             await _unitOfWork.CompanyIndustriesRepository.BulkInsertAsync(result);
+        }
+
+        public async Task CreateCompanyIndustryAsync(CompanyRequestDto company)
+        {
+            var result = new List<CompanyIndustryRequestDto>();
+
+            foreach (var industry in company.Industries)
+            {
+                result.Add(new CompanyIndustryRequestDto
+                {
+                    CompanyId = company.Id,
+                    IndustryName = industry.Name,
+                    IsDeleted = 0
+                });
+            }
+
+            await _unitOfWork.CompanyIndustriesRepository.BulkInsertAsync(result);
+        }
+
+        public async Task GetCompanyIndustriesByCompanyIdAsync(string companyId)
+        {
+
         }
     }
 }

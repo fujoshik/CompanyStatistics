@@ -1,4 +1,5 @@
-﻿using CompanyStatistics.Domain.Abstraction.Repositories;
+﻿using AutoMapper;
+using CompanyStatistics.Domain.Abstraction.Repositories;
 using CompanyStatistics.Domain.Constants;
 using CompanyStatistics.Domain.DTOs.Company;
 using CompanyStatistics.Domain.Exceptions;
@@ -12,10 +13,13 @@ namespace CompanyStatistics.Infrastructure.Repositories
 {
     public class CompanyRepository : BaseRepository<Company>, ICompanyRepository
     {
-        public CompanyRepository(IConfiguration configuration)
+        private readonly IMapper _mapper;
+
+        public CompanyRepository(IConfiguration configuration, IMapper mapper)
             : base(configuration)
         {
-            this.TableName = "Companies";
+            TableName = "Companies";
+            _mapper = mapper;
         }
 
         protected override TOutput DataRowToEntity<TOutput>(DataRow dataRow)
@@ -74,11 +78,12 @@ namespace CompanyStatistics.Infrastructure.Repositories
             return 0;
         }
 
-        public async Task InsertAsync(CompanyWithoutIndustryDto entity)
+        public async Task<CompanyWithoutIndustryDto> InsertAsync(CompanyWithouIndustryRequestDto entity)
         {
-            entity.CompanyIndex = await CountCompaniesAsync();
+            var index = await CountCompaniesAsync();
+            entity.CompanyIndex = index + 1;
 
-            await base.InsertAsync<CompanyWithoutIndustryDto, CompanyWithoutIndustryDto>(entity);
+            return await base.InsertAsync<CompanyWithouIndustryRequestDto, CompanyWithoutIndustryDto>(entity);
         }
 
         public async Task BulkInsertAsync(List<CompanyRequestDto> companies)
@@ -121,7 +126,7 @@ namespace CompanyStatistics.Infrastructure.Repositories
             return DataTableToCollection<CompanyResponseDto>(dataTable);
         }
 
-        public async Task<CompanyResponseDto> GetCompanyByNameAsync(string name)
+        public async Task<CompanyWithoutIndustryDto> GetCompanyByNameAsync(string name)
         {
             await CreateDbIfNotExist();
 
@@ -144,10 +149,11 @@ namespace CompanyStatistics.Infrastructure.Repositories
                 throw new NotFoundException();
             }
 
-            return DataRowToEntity<CompanyResponseDto>(dataTable.Rows[0]);
+            return DataRowToEntity<CompanyWithoutIndustryDto>(dataTable.Rows[0]);
+
         }
 
-        public async Task<List<CompanyResponseDto>> GetTopNCompaniesByEmployeeCountAndDateAsync(int n, DateTime? date = null)
+        public async Task<List<CompanyWithoutIndustryDto>> GetTopNCompaniesByEmployeeCountAndDateAsync(int n, DateTime? date = null)
         {
             await CreateDbIfNotExist();
 
@@ -175,10 +181,9 @@ namespace CompanyStatistics.Infrastructure.Repositories
                     dataTable.Load(reader);
                 }
             }
-            return DataTableToCollection<CompanyResponseDto>(dataTable);
+            return DataTableToCollection<CompanyWithoutIndustryDto>(dataTable);
         }
 
-        //change
         public async Task<int> CountEmployeesByIndustryAsync(string industry)
         {
             await CreateDbIfNotExist();
@@ -206,13 +211,12 @@ namespace CompanyStatistics.Infrastructure.Repositories
                         result += int.Parse(row["NumberOfEmployees"].ToString());
                     }
                 }
-            }    
+            }
 
             return result;
         }
 
-        //change
-        public async Task<List<CompanyResponseDto>> GroupCompaniesByCountryAndIndustryAsync(string country, string industry)
+        public async Task<List<CompanyWithoutIndustryDto>> GroupCompaniesByCountryAndIndustryAsync(string country, string industry)
         {
             await CreateDbIfNotExist();
 
@@ -225,18 +229,18 @@ namespace CompanyStatistics.Infrastructure.Repositories
                 if (country != null && industry != null)
                 {
                     cmd = new SqlCommand(SqlQueryConstants.GROUP_COMPANIES_BY_COUNTRY_AND_INDUSTRY, connection);
-                    cmd.Parameters.Add(new SqlParameter("@Country", country));
-                    cmd.Parameters.Add(new SqlParameter("@Industry", industry));
+                    cmd.Parameters.Add(new SqlParameter("@Country", $"%{country.ToLower()}%"));
+                    cmd.Parameters.Add(new SqlParameter("@Industry", $"%{industry.ToLower()}%"));
                 }
                 else if (country != null)
                 {
                     cmd = new SqlCommand(SqlQueryConstants.GROUP_COMPANIES_BY_COUNTRY, connection);
-                    cmd.Parameters.Add(new SqlParameter("@Country", country));
+                    cmd.Parameters.Add(new SqlParameter("@Country", $"%{country.ToLower()}%"));
                 }
                 else if (industry != null)
                 {
                     cmd = new SqlCommand(SqlQueryConstants.GROUP_COMPANIES_BY_INDUSTRY, connection);
-                    cmd.Parameters.Add(new SqlParameter("@Industry", industry));
+                    cmd.Parameters.Add(new SqlParameter("@Industry", $"%{industry.ToLower()}%"));
                 }
                 else
                 {
@@ -248,7 +252,7 @@ namespace CompanyStatistics.Infrastructure.Repositories
                     dataTable.Load(reader);
                 }
             }
-            return DataTableToCollection<CompanyResponseDto>(dataTable);
+            return DataTableToCollection<CompanyWithoutIndustryDto>(dataTable);
         }
 
         public async Task<HashSet<string>> GetAllCompanyIdsAsync()

@@ -9,17 +9,20 @@ namespace CompanyStatistics.Domain.Services
 {
     public class CompanyService : ICompanyService
     {
-        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IIndustryService _industryService;
+        private readonly ICompanyIndustriesService _companyIndustriesService;
 
-        public CompanyService(IUnitOfWork unitOfWork,
-                              IMapper mapper,
-                              IIndustryService industryService)
+        public CompanyService(IMapper mapper, 
+                              IUnitOfWork unitOfWork,
+                              IIndustryService industryService,
+                              ICompanyIndustriesService companyIndustriesService)
         {
-            _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;         
             _industryService = industryService;
+            _companyIndustriesService = companyIndustriesService;
         }
 
         public async Task<CompanyResponseDto> CreateAsync(CompanyCreateDto company)
@@ -36,12 +39,13 @@ namespace CompanyStatistics.Domain.Services
                 companyDto.Id = Guid.NewGuid().ToString();
             }
 
-            await _industryService.CreateIndustryIfNotExist(companyDto);
+            await _industryService.CreateIndustryIfNotExistAsync(companyDto);
 
-            var request = _mapper.Map<CompanyWithoutIndustryDto>(companyDto);
+            await _companyIndustriesService.CreateCompanyIndustryAsync(companyDto);
 
-            var result = await _unitOfWork.CompanyRepository
-                .InsertAsync<CompanyWithoutIndustryDto, CompanyWithoutIndustryDto>(request);
+            var request = _mapper.Map<CompanyWithouIndustryRequestDto>(companyDto);
+
+            var result = await _unitOfWork.CompanyRepository.InsertAsync(request);
 
             var responseDto = await AssignIndustriesAsync(result);
 
@@ -56,6 +60,8 @@ namespace CompanyStatistics.Domain.Services
             }
 
             var companyWithoutIndustry = _mapper.Map<CompanyWithoutIndustryDto>(company);
+
+            // update companyIndustries if there are any changes
 
             var result = await _unitOfWork.CompanyRepository.UpdateAsync<CompanyWithoutIndustryDto, CompanyWithoutIndustryDto>(
                 id, companyWithoutIndustry);
@@ -107,10 +113,12 @@ namespace CompanyStatistics.Domain.Services
 
         public async Task<CompanyResponseDto> GetCompanyByNameAsync(string companyName)
         {
-            return await _unitOfWork.CompanyRepository.GetCompanyByNameAsync(companyName);
+            var company = await _unitOfWork.CompanyRepository.GetCompanyByNameAsync(companyName);
+
+            return await AssignIndustriesAsync(company);
         }
 
-        private async Task<CompanyResponseDto> AssignIndustriesAsync(CompanyWithoutIndustryDto companyWithoutIndustry)
+        public async Task<CompanyResponseDto> AssignIndustriesAsync(CompanyWithoutIndustryDto companyWithoutIndustry)
         {
             var responseDto = _mapper.Map<CompanyResponseDto>(companyWithoutIndustry);
 

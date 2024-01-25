@@ -29,7 +29,7 @@ namespace CompanyStatistics.Domain.Services
 
         private string BuildPdf(CompanyResponseDto company)
         {
-            string fileName = string.Format($@"{_pdfFilesPath}{DateTime.UtcNow.Ticks}.pdf");
+            string fileName = string.Format($@"{_pdfFilesPath}{DateTime.Now.Ticks}.pdf");
             QuestPDF.Settings.License = LicenseType.Community;
 
             Document.Create(container =>
@@ -54,7 +54,7 @@ namespace CompanyStatistics.Domain.Services
                         x.Item().Text($"Country: {company.Country}").FontSize(18);
                         x.Item().Text($"Description: {company.Description}").FontSize(18);
                         x.Item().Text($"Founded in year {company.Founded}").FontSize(18);
-                        x.Item().Text($"Industry: {string.Format(", ", company.Industries)}").FontSize(18);
+                        x.Item().Text($"Industry: {string.Join(", ", company.Industries.Select(x => x.Name))}").FontSize(18);
                         x.Item().Text($"Number of employees: {company.NumberOfEmployees}").FontSize(18);
                     });
                 });

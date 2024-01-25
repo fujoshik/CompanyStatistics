@@ -28,7 +28,7 @@ namespace CompanyStatistics.Domain.Services
                 issuer: _jwtSettings.Issuer,
                 audience: _jwtSettings.Audience,
                 claims: GetClaims(dto),
-                expires: DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationInMinutes),
+                expires: DateTime.Now.AddMinutes(_jwtSettings.ExpirationInMinutes),
                 signingCredentials: credentials);
 
             return tokenHandler.WriteToken(token);
@@ -42,7 +42,7 @@ namespace CompanyStatistics.Domain.Services
                 new Claim(ClaimTypes.Role, dto.Role.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, dto.Email),
                 new Claim(JwtRegisteredClaimNames.NameId, dto.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Iat, new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds().ToString()),
+                new Claim(JwtRegisteredClaimNames.Iat, new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds().ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
         }

@@ -41,7 +41,7 @@ namespace CompanyStatistics.API.Controllers
 
         [HttpPost]
         [AuthorizeRoles(Role.Admin, Role.Regular)]
-        public async Task<IActionResult> CreateAsync([FromBody] CompanyRequestDto company)
+        public async Task<IActionResult> CreateAsync([FromBody] CompanyCreateDto company)
         {
             await _companyService.CreateAsync(company);
 

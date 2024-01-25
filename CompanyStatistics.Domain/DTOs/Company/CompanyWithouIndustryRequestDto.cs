@@ -1,6 +1,6 @@
 ﻿namespace CompanyStatistics.Domain.DTOs.Company
 {
-    public class CompanyWithoutIndustryDto : BaseResponseDto
+    public class CompanyWithouIndustryRequestDto : BaseResponseDto
     {
         public int CompanyIndex { get; set; }
         public string Name { get; set; }
@@ -9,7 +9,6 @@
         public string Description { get; set; }
         public int Founded { get; set; }
         public int NumberOfEmployees { get; set; }
-        public bool? IsDeleted { get; set; }
-        public DateTime? DateRead { get; set; } = null;
+        public int IsDeleted { get; set; } = 0;
     }
 }

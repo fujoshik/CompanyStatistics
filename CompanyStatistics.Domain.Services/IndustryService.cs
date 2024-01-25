@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using CompanyStatistics.Domain.Abstraction.Repositories;
+﻿using CompanyStatistics.Domain.Abstraction.Repositories;
 using CompanyStatistics.Domain.Abstraction.Services;
 using CompanyStatistics.Domain.DTOs.Company;
 using CompanyStatistics.Domain.DTOs.Industry;
@@ -17,12 +16,30 @@ namespace CompanyStatistics.Domain.Services
         {
             _unitOfWork = unitOfWork;
             _getInfoFromDbService = getInfoFromDbService;     
-        }
+        }     
 
         public async Task SeparateIndustriesAndSaveThemAsync(List<IndustryRequestDto> industries)
         {
+            var result = SeparateIndustries(industries);
+
+            var newIndustries = FilterExistingIndustries(result);
+
+            await SaveIndustriesAsync(newIndustries);
+        }
+
+        public async Task CreateIndustryIfNotExistAsync(CompanyRequestDto companyRequest)
+        {
+            var filtered = FilterExistingIndustries(companyRequest.Industries);
+
+            if (filtered.Count > 0)
+            {
+                await SaveIndustriesAsync(filtered);
+            }      
+        }
+
+        private List<IndustryRequestDto> SeparateIndustries(List<IndustryRequestDto> industries)
+        {
             var result = new List<IndustryRequestDto>();
-            _industries = GetInfoFromDbService.Industries;
 
             foreach (var item in industries)
             {
@@ -32,7 +49,12 @@ namespace CompanyStatistics.Domain.Services
                 result.AddRange(entries.Select(x => new IndustryRequestDto { Name = x }));
             }
 
-            result = result.DistinctBy(x => x.Name).ToList(); 
+            return result.DistinctBy(x => x.Name).ToList();
+        }
+
+        private List<IndustryRequestDto> FilterExistingIndustries(List<IndustryRequestDto> result)
+        {
+            _industries = GetInfoFromDbService.Industries;
 
             if (_industries.Count > 0)
             {
@@ -41,23 +63,16 @@ namespace CompanyStatistics.Domain.Services
                 _industries = GetInfoFromDbService.Industries;
             }
 
-            var newIndustries = result
+            return result
                 .Where(x => !_industries.Contains(x.Name))
                 .ToList();
-
-            await _unitOfWork.IndustryRepository.BulkInsertAsync(newIndustries);
-
-            _getInfoFromDbService.UpdateIndustries(result.Select(x => x.Name));
         }
 
-        public async Task CreateIndustryIfNotExist(CompanyRequestDto companyRequest)
+        private async Task SaveIndustriesAsync(List<IndustryRequestDto> newIndustries)
         {
-            var industries = new List<IndustryRequestDto>
-            {
-                new IndustryRequestDto { Name = companyRequest.Industry }
-            };
+            await _unitOfWork.IndustryRepository.BulkInsertAsync(newIndustries);
 
-            await SeparateIndustriesAndSaveThemAsync(industries);
+            _getInfoFromDbService.UpdateIndustries(newIndustries.Select(x => x.Name));
         }
     }
 }
