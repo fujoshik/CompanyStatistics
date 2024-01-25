@@ -232,7 +232,7 @@ namespace CompanyStatistics.Infrastructure.Repositories
             return DataRowToEntity<TOutput>(dataTable.Rows[0]);
         }
 
-        public async Task DeleteAsync(string id)
+        public virtual async Task DeleteAsync(string id)
         {
             await CreateDbIfNotExist();
 

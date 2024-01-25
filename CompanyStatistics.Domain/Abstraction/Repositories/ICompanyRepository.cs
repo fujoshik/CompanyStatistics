@@ -6,6 +6,7 @@ namespace CompanyStatistics.Domain.Abstraction.Repositories
     {
         Task<HashSet<string>> GetAllCompanyIdsAsync();
         Task<CompanyWithoutIndustryDto> InsertAsync(CompanyWithouIndustryRequestDto entity);
+        Task DeleteCompanyAsync(string id);
         Task<int> CountEmployeesByIndustryAsync(string industry);
         Task BulkInsertAsync(List<CompanyRequestDto> companies);
         Task<CompanyWithoutIndustryDto> GetCompanyByNameAsync(string name);

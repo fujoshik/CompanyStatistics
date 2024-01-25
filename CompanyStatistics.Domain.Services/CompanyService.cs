@@ -108,7 +108,7 @@ namespace CompanyStatistics.Domain.Services
                 throw new ArgumentNullException(nameof(id));
             }
 
-            await _unitOfWork.CompanyRepository.DeleteAsync(id);
+            await _unitOfWork.CompanyRepository.DeleteCompanyAsync(id);
         }
 
         public async Task<CompanyResponseDto> GetCompanyByNameAsync(string companyName)

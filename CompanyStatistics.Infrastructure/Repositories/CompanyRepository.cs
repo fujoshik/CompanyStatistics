@@ -284,5 +284,18 @@ namespace CompanyStatistics.Infrastructure.Repositories
             
             return result;
         }
+
+        public async Task DeleteCompanyAsync(string id)
+        {
+            using (var connection = new SqlConnection(_dbConnectionString))
+            {
+                connection.Open();
+                SqlCommand cmd = new SqlCommand(SqlQueryConstants.DELETE_COMPANY_INDUSTRIES, connection);
+                cmd.Parameters.Add(new SqlParameter("@Id", id));
+                await cmd.ExecuteNonQueryAsync();
+            }
+
+            await base.DeleteAsync(id);
+        }
     }
 }

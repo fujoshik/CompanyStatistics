@@ -31,5 +31,7 @@
         public const string GET_ALL_INDUSTRIES = $@"{USE_COMPANYSTATISTICSDB} SELECT Name FROM Industries";
 
         public const string COUNT_COMPANIES = $@"{USE_COMPANYSTATISTICSDB} SELECT COUNT(Id) AS Count FROM Companies";
+
+        public const string DELETE_COMPANY_INDUSTRIES = $@"{USE_COMPANYSTATISTICSDB} DELETE FROM Company_Industries WHERE CompanyId = @Id";
     }
 }
