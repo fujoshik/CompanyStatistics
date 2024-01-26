@@ -7,5 +7,6 @@ namespace CompanyStatistics.Domain.Abstraction.Repositories
     {
         Task BulkInsertAsync(List<CompanyIndustryRequestDto> companyIndustries);
         Task<List<IndustryResponseDto>> GetIndustriesByCompanyIdAsync(string companyId);
+        Task DeleteByCompanyIdAndIndustryNameAsync(string companyId, string industryName);
     }
 }

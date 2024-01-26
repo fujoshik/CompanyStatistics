@@ -78,5 +78,17 @@ namespace CompanyStatistics.Infrastructure.Repositories
                 .Select(x => new IndustryResponseDto { Name = x.IndustryName })
                 .ToList();
         }
+
+        public async Task DeleteByCompanyIdAndIndustryNameAsync(string companyId, string industryName)
+        {
+            using (var connection = new SqlConnection(_dbConnectionString))
+            {
+                connection.Open();
+                SqlCommand cmd = new SqlCommand(SqlQueryConstants.DELETE_COMPANY_INDUSTRIES_BY_ID_AND_NAME, connection);
+                cmd.Parameters.Add(new SqlParameter("@Id", companyId));
+                cmd.Parameters.Add(new SqlParameter("@Name", industryName));
+                await cmd.ExecuteNonQueryAsync();
+            }
+        }
     }
 }

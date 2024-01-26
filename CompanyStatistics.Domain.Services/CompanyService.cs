@@ -2,6 +2,8 @@
 using CompanyStatistics.Domain.Abstraction.Repositories;
 using CompanyStatistics.Domain.Abstraction.Services;
 using CompanyStatistics.Domain.DTOs.Company;
+using CompanyStatistics.Domain.DTOs.CompanyIndustry;
+using CompanyStatistics.Domain.DTOs.Industry;
 using CompanyStatistics.Domain.Extensions;
 using CompanyStatistics.Domain.Pagination;
 
@@ -61,7 +63,7 @@ namespace CompanyStatistics.Domain.Services
 
             var companyWithoutIndustry = _mapper.Map<CompanyWithoutIndustryDto>(company);
 
-            // update companyIndustries if there are any changes
+            await UpdateCompanyIndustriesAsync(id, company);
 
             var result = await _unitOfWork.CompanyRepository.UpdateAsync<CompanyWithoutIndustryDto, CompanyWithoutIndustryDto>(
                 id, companyWithoutIndustry);
@@ -126,6 +128,44 @@ namespace CompanyStatistics.Domain.Services
             responseDto.Industries = industries;
 
             return responseDto;
+        }
+
+        private async Task UpdateCompanyIndustriesAsync(string id, CompanyWithoutIdDto company)
+        {
+            var industries = await _unitOfWork.CompanyIndustriesRepository.GetIndustriesByCompanyIdAsync(id);
+
+            foreach (var industry in company.Industries)
+            {
+                if (!industries.Select(x => x.Name).Contains(industry.Name))
+                {
+                    await _unitOfWork.CompanyIndustriesRepository.DeleteByCompanyIdAndIndustryNameAsync(id, industry.Name);
+                }
+            }
+
+            var newCompanyIndustries = company.Industries
+                .Where(x => !industries.Select(i => i.Name).Contains(x.Name))
+                .ToList();
+
+            var result = CreateCompanyIndustries(id, newCompanyIndustries);
+
+            await _unitOfWork.CompanyIndustriesRepository.BulkInsertAsync(result);
+        }
+
+        private List<CompanyIndustryRequestDto> CreateCompanyIndustries(string companyId, List<IndustryRequestDto> industries)
+        {
+            var result = new List<CompanyIndustryRequestDto>();
+
+            foreach (var item in industries)
+            {
+                result.Add(new CompanyIndustryRequestDto
+                {
+                    CompanyId = companyId,
+                    IndustryName = item.Name,
+                    IsDeleted = 0
+                });
+            }
+
+            return result;
         }
     }
 }
