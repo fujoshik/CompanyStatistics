@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CompanyStatistics.Domain.Abstraction.Factories;
 using CompanyStatistics.Domain.Abstraction.Repositories;
 using CompanyStatistics.Domain.Abstraction.Services;
 using CompanyStatistics.Domain.DTOs.Company;
@@ -15,16 +16,19 @@ namespace CompanyStatistics.Domain.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IIndustryService _industryService;
         private readonly ICompanyIndustriesService _companyIndustriesService;
+        private readonly ICompanyIndustryFactory _companyIndustryFactory;
 
         public CompanyService(IMapper mapper, 
                               IUnitOfWork unitOfWork,
                               IIndustryService industryService,
-                              ICompanyIndustriesService companyIndustriesService)
+                              ICompanyIndustriesService companyIndustriesService,
+                              ICompanyIndustryFactory companyIndustryFactory)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;         
             _industryService = industryService;
             _companyIndustriesService = companyIndustriesService;
+            _companyIndustryFactory = companyIndustryFactory;
         }
 
         public async Task<CompanyResponseDto> CreateAsync(CompanyCreateDto company)
@@ -157,12 +161,9 @@ namespace CompanyStatistics.Domain.Services
 
             foreach (var item in industries)
             {
-                result.Add(new CompanyIndustryRequestDto
-                {
-                    CompanyId = companyId,
-                    IndustryName = item.Name,
-                    IsDeleted = 0
-                });
+                var companyIndustry = _companyIndustryFactory.CreateCompanyIndustryRequestDto(companyId, item.Name);
+
+                result.Add(companyIndustry);
             }
 
             return result;
