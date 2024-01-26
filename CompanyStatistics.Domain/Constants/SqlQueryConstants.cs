@@ -20,7 +20,7 @@
 
         public const string RETURN_ALL_COMPANIES = $@"{USE_COMPANYSTATISTICSDB} SELECT * FROM Companies WHERE IsDeleted = 0";
 
-        public const string GET_COMPANIES_BY_DATE = $@"{USE_COMPANYSTATISTICSDB} SELECT * FROM Companies WHERE IsDeleted = 0 AND CAST(DateRead AS date) = CAST(@Date AS date)";
+        public const string GET_COMPANIES_COUNT_BY_DATE = $@"{USE_COMPANYSTATISTICSDB} SELECT Count(Id) AS Count FROM Companies WHERE IsDeleted = 0 AND CAST(DateRead AS date) = CAST(@Date AS date)";
 
         public const string GET_COMPANY_BY_NAME = $@"{USE_COMPANYSTATISTICSDB} SELECT * FROM Companies WHERE IsDeleted = 0 AND Name = @Name";
 

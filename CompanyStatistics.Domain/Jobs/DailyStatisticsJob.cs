@@ -19,10 +19,9 @@ namespace CompanyStatistics.Domain.Jobs
         {
             var yesterdayDate = DateTime.Now.AddDays(-1);
 
-            var topCompaniesByEmployeeCount = await _statisticsService.GetTopNCompaniesByEmployeeCountAndDateAsync(
-                10, yesterdayDate);
+            var companiesCount = await _statisticsService.GetCompaniesCountByDateAsync(yesterdayDate);
 
-            _fileService.WriteAJsonFileWithStatistics(topCompaniesByEmployeeCount, yesterdayDate.Date.ToString("d"));
+            _fileService.WriteAJsonFileWithStatistics(companiesCount, yesterdayDate.Date.ToString("d"));
         }
     }
 }

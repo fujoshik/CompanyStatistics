@@ -106,7 +106,7 @@ namespace CompanyStatistics.Infrastructure.Repositories
             }         
         }
 
-        public async Task<List<CompanyResponseDto>> GetCompaniesByDateAsync(DateTime date)
+        public async Task<int> GetCompaniesCountByDateAsync(DateTime date)
         {
             await CreateDbIfNotExist();
 
@@ -115,7 +115,7 @@ namespace CompanyStatistics.Infrastructure.Repositories
             using (var connection = new SqlConnection(_dbConnectionString))
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand(SqlQueryConstants.GET_COMPANIES_BY_DATE, connection);
+                SqlCommand cmd = new SqlCommand(SqlQueryConstants.GET_COMPANIES_COUNT_BY_DATE, connection);
                 cmd.Parameters.Add(new SqlParameter("@Date", date));
 
                 using (var reader = await cmd.ExecuteReaderAsync())
@@ -123,7 +123,13 @@ namespace CompanyStatistics.Infrastructure.Repositories
                     dataTable.Load(reader);
                 }
             }
-            return DataTableToCollection<CompanyResponseDto>(dataTable);
+
+            if (dataTable.Rows.Count > 0)
+            {
+                return int.Parse(dataTable.Rows[0]["Count"].ToString());
+            }
+
+            return 0;
         }
 
         public async Task<CompanyWithoutIndustryDto> GetCompanyByNameAsync(string name)
@@ -290,7 +296,7 @@ namespace CompanyStatistics.Infrastructure.Repositories
             using (var connection = new SqlConnection(_dbConnectionString))
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand(SqlQueryConstants.DELETE_COMPANY_INDUSTRIES, connection);
+                SqlCommand cmd = new SqlCommand(SqlQueryConstants.DELETE_COMPANY_INDUSTRIES_BY_COMPANYID, connection);
                 cmd.Parameters.Add(new SqlParameter("@Id", id));
                 await cmd.ExecuteNonQueryAsync();
             }

@@ -21,6 +21,11 @@ namespace CompanyStatistics.Domain.Services
             return await _unitOfWork.CompanyRepository.CountEmployeesByIndustryAsync(industry);
         }
 
+        public async Task<int> GetCompaniesCountByDateAsync(DateTime date)
+        {
+            return await _unitOfWork.CompanyRepository.GetCompaniesCountByDateAsync(date);
+        }
+
         public async Task<List<CompanyResponseDto>> GetTopNCompaniesByEmployeeCountAndDateAsync(int n, DateTime? date = null)
         {
             var companies = await _unitOfWork.CompanyRepository.GetTopNCompaniesByEmployeeCountAndDateAsync(n, date);
