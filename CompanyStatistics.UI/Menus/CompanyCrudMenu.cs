@@ -1,6 +1,5 @@
 ﻿using CompanyStatistics.Domain.DTOs.Company;
 using CompanyStatistics.Domain.DTOs.Industry;
-using CompanyStatistics.Domain.Pagination;
 using CompanyStatistics.UI.HttpClients;
 using CompanyStatistics.UI.HttpClients.Abstraction;
 using CompanyStatistics.UI.Menus.Abstraction;
@@ -27,6 +26,7 @@ namespace CompanyStatistics.UI.Menus
             Console.WriteLine();
 
             string choice = Console.ReadLine().ToLower();
+            Console.WriteLine();
 
             switch (choice)
             {
@@ -52,7 +52,8 @@ namespace CompanyStatistics.UI.Menus
 
         public async Task ReadDataAsync()
         {
-            await _companyClient.ReadDataAsync();
+            var result = await _companyClient.ReadDataAsync();
+            Console.WriteLine(result);
         }
 
         private async Task CreateAsync()
@@ -72,15 +73,25 @@ namespace CompanyStatistics.UI.Menus
             Console.Write("Description: ");
             var description = Console.ReadLine();
 
-            Console.Write("Founded: ");
-            var founded = int.Parse(Console.ReadLine());
+            int founded = 0, numOfEmployees = 0;
 
-            Console.Write("Number of employees: ");
-            var numOfEmployees = int.Parse(Console.ReadLine());
+            try
+            {
+                Console.Write("Founded: ");
+                founded = int.Parse(Console.ReadLine());
+
+                Console.Write("Number of employees: ");
+                numOfEmployees = int.Parse(Console.ReadLine());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
 
             Console.Write("Industry name: ");
             var industry = Console.ReadLine();
 
+            Console.WriteLine();
             var result = await _companyClient.CreateAsync(new CompanyCreateDto()
             {
                 Name = name,
@@ -119,15 +130,25 @@ namespace CompanyStatistics.UI.Menus
             Console.Write("Description: ");
             var description = Console.ReadLine();
 
-            Console.Write("Founded: ");
-            var founded = int.Parse(Console.ReadLine());
+            int founded = 0, numOfEmployees = 0;
 
-            Console.Write("Number of employees: ");
-            var numOfEmployees = int.Parse(Console.ReadLine());
+            try
+            {
+                Console.Write("Founded: ");
+                founded = int.Parse(Console.ReadLine());
+
+                Console.Write("Number of employees: ");
+                numOfEmployees = int.Parse(Console.ReadLine());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
 
             Console.Write("Industry name: ");
             var industry = Console.ReadLine();
 
+            Console.WriteLine();
             var result = await _companyClient.UpdateCompanyAsync(id, new CompanyWithoutIdDto()
             {
                 CompanyIndex = companyIndex,
@@ -147,13 +168,11 @@ namespace CompanyStatistics.UI.Menus
 
         private async Task GetByIdAsync()
         {
-            var token = GetToken();
-            Console.WriteLine();
-
             Console.Write("Id: ");
             var id = Console.ReadLine();
 
-            var result = await _companyClient.GetCompanyAsync(id, token);
+            Console.WriteLine();
+            var result = await _companyClient.GetCompanyAsync(id);
 
             Console.WriteLine(result);
             Console.WriteLine();
@@ -161,16 +180,23 @@ namespace CompanyStatistics.UI.Menus
 
         private async Task GetPageAsync()
         {
-            var token = GetToken();
+            int pageNum = 0, pageSize = 0;
+
+            try
+            {
+                Console.Write("Page number: ");
+                pageNum = int.Parse(Console.ReadLine());
+
+                Console.Write("Page size: ");
+                pageSize = int.Parse(Console.ReadLine());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }     
+
             Console.WriteLine();
-
-            Console.Write("Page number: ");
-            var pageNum = int.Parse(Console.ReadLine());
-
-            Console.Write("Page size: ");
-            var pageSize = int.Parse(Console.ReadLine());
-
-            var result = await _companyClient.GetPageAsync(pageNum, pageSize, token);
+            var result = await _companyClient.GetPageAsync(pageNum, pageSize);
 
             Console.WriteLine(result);
             Console.WriteLine();
@@ -184,6 +210,7 @@ namespace CompanyStatistics.UI.Menus
             Console.Write("Id: ");
             var id = Console.ReadLine();
 
+            Console.WriteLine();
             var result = await _companyClient.DeleteAsync(id, token);
 
             Console.WriteLine(result);

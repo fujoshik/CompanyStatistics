@@ -48,9 +48,11 @@ namespace CompanyStatistics.UI.Menus
             Console.Write("Industry: ");
             var industry = Console.ReadLine();
 
+            Console.WriteLine();
             var result = await _statisticsClient.CountEmployeesByIndustryAsync(industry);
 
             Console.WriteLine(result);
+            Console.WriteLine();
         }
 
         private async Task GetTopNCompaniesByEmployeeCountAsync()
@@ -58,9 +60,11 @@ namespace CompanyStatistics.UI.Menus
             Console.Write("N: ");
             var n = int.Parse(Console.ReadLine());
 
+            Console.WriteLine();
             var result = await _statisticsClient.GetTopNCompaniesByEmployeeCountAsync(n);
 
             Console.WriteLine(result.ToString());
+            Console.WriteLine();
         }
 
         private async Task GroupCompaniesByCountryAndIndustryAsync()
@@ -71,9 +75,11 @@ namespace CompanyStatistics.UI.Menus
             Console.Write("Industry: ");
             var industry = Console.ReadLine();
 
+            Console.WriteLine();
             var result = await _statisticsClient.GroupCompaniesByCountryAndIndustryAsync(country, industry);
 
-            Console.WriteLine(string.Join("; ", result.ToString()));
+            Console.WriteLine(string.Join("; ", result));
+            Console.WriteLine();
         }
 
         private async Task GeneratePdfAsync()
@@ -84,9 +90,11 @@ namespace CompanyStatistics.UI.Menus
             Console.Write("Company name: ");
             var companyName = Console.ReadLine();
 
+            Console.WriteLine();
             var result = await _statisticsClient.GeneratePdfAsync(companyName, token);
 
             Console.WriteLine(result);
+            Console.WriteLine();
         }
     }
 }

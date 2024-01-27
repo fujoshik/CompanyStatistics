@@ -7,7 +7,7 @@ namespace CompanyStatistics.UI.HttpClients
 {
     public class StatisticsClient : BaseClient, IStatisticsClient
     {
-        public async Task<int> CountEmployeesByIndustryAsync(string industry)
+        public async Task<string> CountEmployeesByIndustryAsync(string industry)
         {
             var route = UrlConstants.COUNT_EMPLOYEES_BY_INDUSTRY_URL + $"?industry={industry}";
 
@@ -15,13 +15,13 @@ namespace CompanyStatistics.UI.HttpClients
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new HttpRequestException((int)response.StatusCode + " " + response.ReasonPhrase);
+                return (int)response.StatusCode + " " + response.ReasonPhrase;
             }
 
-            return int.Parse(await response.Content.ReadAsStringAsync());
+            return await response.Content.ReadAsStringAsync();
         }
 
-        public async Task<CompanyResponseDto> GetTopNCompaniesByEmployeeCountAsync(int n)
+        public async Task<string> GetTopNCompaniesByEmployeeCountAsync(int n)
         {
             var route = UrlConstants.GET_TOP_N_COMPANIES_BY_EMPLOYEE_COUNT_URL + $"?n={n}";
 
@@ -29,13 +29,14 @@ namespace CompanyStatistics.UI.HttpClients
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new HttpRequestException((int)response.StatusCode + " " + response.ReasonPhrase);
+                return (int)response.StatusCode + " " + response.ReasonPhrase;
             }
 
-            return await response.Content.ReadFromJsonAsync<CompanyResponseDto>();
+            var result = await response.Content.ReadFromJsonAsync<CompanyResponseDto>();
+            return result.ToString();
         }
 
-        public async Task<List<CompanyResponseDto>> GroupCompaniesByCountryAndIndustryAsync(string country = null, string industry = null)
+        public async Task<string> GroupCompaniesByCountryAndIndustryAsync(string country = null, string industry = null)
         {
             var route = UrlConstants.GET_TOP_N_COMPANIES_BY_EMPLOYEE_COUNT_URL + $"?country={country}&industry={industry}";
 
@@ -43,10 +44,12 @@ namespace CompanyStatistics.UI.HttpClients
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new HttpRequestException((int)response.StatusCode + " " + response.ReasonPhrase);
+                return (int)response.StatusCode + " " + response.ReasonPhrase;
             }
 
-            return await response.Content.ReadFromJsonAsync<List<CompanyResponseDto>>();
+            var result = await response.Content.ReadFromJsonAsync<List<CompanyResponseDto>>();
+
+            return string.Join("; ", result);
         }
 
         public async Task<string> GeneratePdfAsync(string companyName, string bearer)

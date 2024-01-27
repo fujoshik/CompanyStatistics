@@ -33,10 +33,8 @@ namespace CompanyStatistics.UI.HttpClients
             return (int)response.StatusCode + " " + response.ReasonPhrase;
         }
 
-        public async Task<string> GetCompanyAsync(string id, string bearer)
+        public async Task<string> GetCompanyAsync(string id)
         {
-            AddAuthorizationHeader(bearer);
-
             var response = await _httpClient.GetAsync(UrlConstants.GET_COMPANY_URL + id);
 
             if (!response.IsSuccessStatusCode)
@@ -49,10 +47,8 @@ namespace CompanyStatistics.UI.HttpClients
             return result.ToString();
         }
 
-        public async Task<string> GetPageAsync(int pageNumber, int pageSize, string bearer)
+        public async Task<string> GetPageAsync(int pageNumber, int pageSize)
         {
-            AddAuthorizationHeader(bearer);
-
             var query = $"?PageNumber={pageNumber}&PageSize={pageSize}";
 
             var getRoute = UrlConstants.GET_COMPANY_URL + query;

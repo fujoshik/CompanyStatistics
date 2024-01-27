@@ -236,12 +236,21 @@ namespace CompanyStatistics.Infrastructure.Repositories
         {
             await CreateDbIfNotExist();
 
+            var dataTable = new DataTable();
             using (var connection = new SqlConnection(_dbConnectionString))
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand($"UPDATE {TableName} SET IsDeleted = 1 WHERE Id = @Id", connection);
+                SqlCommand cmd = new SqlCommand($"UPDATE {TableName} SET IsDeleted = 1 WHERE Id = @Id; SELECT @@ROWCOUNT AS RowCounts", connection);
                 cmd.Parameters.Add(new SqlParameter("@Id", id));
-                await cmd.ExecuteNonQueryAsync();
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    dataTable.Load(reader);
+                }
+            }
+
+            if (int.Parse(dataTable.Rows[0]["RowCounts"].ToString()) == 0)
+            {
+                throw new NotFoundException();
             }
         }
     }

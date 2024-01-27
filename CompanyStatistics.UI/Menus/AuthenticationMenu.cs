@@ -22,6 +22,7 @@ namespace CompanyStatistics.UI.Menus
             Console.WriteLine();
 
             string choice = Console.ReadLine().ToLower();
+            Console.WriteLine();
 
             switch (choice)
             {
@@ -45,10 +46,11 @@ namespace CompanyStatistics.UI.Menus
             Console.Write("Password: ");
             var password = Console.ReadLine();
 
-            var result = await _authenticateClient.LoginAsync(new LoginDto() { Email = email, Password = password });
             Console.WriteLine();
+            var result = await _authenticateClient.LoginAsync(new LoginDto() { Email = email, Password = password });
 
             Console.WriteLine(result);
+            Console.WriteLine();
         }
 
         private async Task RegisterAsync()
@@ -59,8 +61,17 @@ namespace CompanyStatistics.UI.Menus
             Console.Write("Last name: ");
             var lastName = Console.ReadLine();
 
-            Console.Write("Age: ");
-            var age = int.Parse(Console.ReadLine());
+            int age = 0;
+
+            try
+            {
+                Console.Write("Age: ");
+                age = int.Parse(Console.ReadLine());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
 
             Console.Write("Country: ");
             var country = Console.ReadLine();
@@ -71,7 +82,9 @@ namespace CompanyStatistics.UI.Menus
             Console.Write("Password: ");
             var password = Console.ReadLine();
 
-            await _authenticateClient.RegisterAsync(new RegisterDto()
+            Console.WriteLine();
+
+            var result = await _authenticateClient.RegisterAsync(new RegisterDto()
             {
                 FirstName = firstName,
                 LastName = lastName,
@@ -80,6 +93,8 @@ namespace CompanyStatistics.UI.Menus
                 Email = email,
                 Password = password
             });
+
+            Console.WriteLine(result);
             Console.WriteLine();
         }
     }

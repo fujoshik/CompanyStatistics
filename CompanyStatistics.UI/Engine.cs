@@ -16,6 +16,7 @@ namespace CompanyStatistics.UI
             _showMenu.MainMenu();
 
             var input = Console.ReadLine().ToLower();
+            Console.WriteLine();
 
             while (input != "stop")
             {
@@ -38,7 +39,6 @@ namespace CompanyStatistics.UI
                 }
 
                 _showMenu.MainMenu();
-                Console.WriteLine();
                 input = Console.ReadLine().ToLower();
             }
         }
