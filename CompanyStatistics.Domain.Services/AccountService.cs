@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CompanyStatistics.Domain.Abstraction.Providers;
 using CompanyStatistics.Domain.Abstraction.Repositories;
 using CompanyStatistics.Domain.Abstraction.Services;
 using CompanyStatistics.Domain.DTOs.Account;
@@ -12,14 +13,17 @@ namespace CompanyStatistics.Domain.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IPasswordService _passwordService;
+        private readonly IValidationProvider _validationProvider;
 
         public AccountService(IUnitOfWork unitOfWork,
                               IMapper mapper,
-                              IPasswordService passwordService)
+                              IPasswordService passwordService,
+                              IValidationProvider validationProvider)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _passwordService = passwordService;
+            _validationProvider = validationProvider;
         }
 
         public async Task<AccountResponseDto> CreateAsync(RegisterDto registerDto)
@@ -42,6 +46,8 @@ namespace CompanyStatistics.Domain.Services
             {
                 throw new ArgumentNullException(nameof(account));
             }
+
+            await _validationProvider.TryValidateAsync(account);
 
             return await _unitOfWork.AccountRepository.UpdateAsync<AccountRequestDto, AccountResponseDto>(id, account);
         }

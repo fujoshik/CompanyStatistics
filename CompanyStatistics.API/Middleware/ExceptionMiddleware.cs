@@ -47,6 +47,10 @@ namespace CompanyStatistics.API.Middleware
                         statusCode = HttpStatusCode.BadRequest;
                         detail = ex.Message;
                         break;
+                    case NoExistingValidatorForGivenTypeException:
+                        statusCode = HttpStatusCode.NotFound;
+                        detail = ex.Message;
+                        break;
                     case UnauthorizedAccessException:
                         statusCode = HttpStatusCode.Forbidden;
                         detail = ex.Message;

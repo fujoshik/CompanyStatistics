@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CompanyStatistics.Domain.Abstraction.Providers;
 using CompanyStatistics.Domain.Abstraction.Repositories;
 using CompanyStatistics.Domain.Abstraction.Services;
 using CompanyStatistics.Domain.DTOs.Authentication;
@@ -11,12 +12,15 @@ namespace CompanyStatistics.Domain.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IValidationProvider _validationProvider;
 
         public UserService(IUnitOfWork unitOfWork,
-                           IMapper mapper)
+                           IMapper mapper,
+                           IValidationProvider validationProvider)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _validationProvider = validationProvider;
         }
 
         public async Task<UserResponseDto> CreateAsync(RegisterDto registerDto, string accountId)
@@ -38,6 +42,8 @@ namespace CompanyStatistics.Domain.Services
             {
                 throw new ArgumentNullException(nameof(user));
             }
+
+            await _validationProvider.TryValidateAsync(user);
 
             var userRequestDto = _mapper.Map<UserRequestDto>(user);
 

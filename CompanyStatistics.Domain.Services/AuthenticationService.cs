@@ -1,4 +1,5 @@
-﻿using CompanyStatistics.Domain.Abstraction.Repositories;
+﻿using CompanyStatistics.Domain.Abstraction.Providers;
+using CompanyStatistics.Domain.Abstraction.Repositories;
 using CompanyStatistics.Domain.Abstraction.Services;
 using CompanyStatistics.Domain.DTOs.Authentication;
 
@@ -11,18 +12,21 @@ namespace CompanyStatistics.Domain.Services
         private readonly ITokenService _tokenService;
         private readonly IUserService _userService;
         private readonly IAccountService _accountService;
+        private readonly IValidationProvider _validationProvider;
 
         public AuthenticationService(IUnitOfWork unitOfWork,
                                      IPasswordService passwordService,
                                      ITokenService tokenService,
                                      IUserService userService,
-                                     IAccountService accountService)
+                                     IAccountService accountService,
+                                     IValidationProvider validationProvider)
         {
             _unitOfWork = unitOfWork;
             _passwordService = passwordService;
             _tokenService = tokenService;
             _userService = userService;
             _accountService = accountService;
+            _validationProvider = validationProvider;
         }
 
         public async Task<string> LoginAsync(LoginDto loginDto)
@@ -31,6 +35,8 @@ namespace CompanyStatistics.Domain.Services
             {
                 throw new ArgumentNullException(nameof(loginDto));
             }
+
+            await _validationProvider.TryValidateAsync(loginDto);
 
             var accounts = await _unitOfWork.AccountRepository.GetAccountsByEmail(loginDto.Email);
 
@@ -54,6 +60,8 @@ namespace CompanyStatistics.Domain.Services
 
         public async Task RegisterAccountAsync(RegisterDto registerDto)
         {
+            await _validationProvider.TryValidateAsync(registerDto);
+
             var account = await _accountService.CreateAsync(registerDto);
 
             await _userService.CreateAsync(registerDto, account.Id);

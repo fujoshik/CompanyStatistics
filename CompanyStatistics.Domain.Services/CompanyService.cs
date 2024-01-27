@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using CompanyStatistics.Domain.Abstraction.Factories;
+using CompanyStatistics.Domain.Abstraction.Providers;
 using CompanyStatistics.Domain.Abstraction.Repositories;
 using CompanyStatistics.Domain.Abstraction.Services;
+using CompanyStatistics.Domain.DTOs.Authentication;
 using CompanyStatistics.Domain.DTOs.Company;
 using CompanyStatistics.Domain.DTOs.CompanyIndustry;
 using CompanyStatistics.Domain.DTOs.Industry;
@@ -17,18 +19,21 @@ namespace CompanyStatistics.Domain.Services
         private readonly IIndustryService _industryService;
         private readonly ICompanyIndustriesService _companyIndustriesService;
         private readonly ICompanyIndustryFactory _companyIndustryFactory;
+        private readonly IValidationProvider _validationProvider;
 
         public CompanyService(IMapper mapper, 
                               IUnitOfWork unitOfWork,
                               IIndustryService industryService,
                               ICompanyIndustriesService companyIndustriesService,
-                              ICompanyIndustryFactory companyIndustryFactory)
+                              ICompanyIndustryFactory companyIndustryFactory,
+                              IValidationProvider validationProvider)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;         
             _industryService = industryService;
             _companyIndustriesService = companyIndustriesService;
             _companyIndustryFactory = companyIndustryFactory;
+            _validationProvider = validationProvider;
         }
 
         public async Task<CompanyResponseDto> CreateAsync(CompanyCreateDto company)
@@ -37,6 +42,8 @@ namespace CompanyStatistics.Domain.Services
             {
                 throw new ArgumentNullException(nameof(company));
             }
+
+            await _validationProvider.TryValidateAsync(company);
 
             var companyDto = _mapper.Map<CompanyRequestDto>(company);
 
@@ -64,6 +71,8 @@ namespace CompanyStatistics.Domain.Services
             {
                 throw new ArgumentNullException(nameof(company));
             }
+
+            await _validationProvider.TryValidateAsync(company);
 
             var companyWithoutIndustry = _mapper.Map<CompanyWithoutIndustryDto>(company);
 
