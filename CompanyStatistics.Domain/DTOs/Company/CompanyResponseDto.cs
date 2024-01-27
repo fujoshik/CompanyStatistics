@@ -14,5 +14,11 @@ namespace CompanyStatistics.Domain.DTOs.Company
         public int NumberOfEmployees { get; set; }
         public bool? IsDeleted { get; set; }
         public DateTime DateRead { get; set; }
+
+        public override string ToString()
+        {
+            return string.Format($"Name: {Name}, Website: {Website}, Country: {Country}, Description: {Description}, " +
+                $"Founded: {Founded}, Industries: {string.Join(", ", Industries.Select(x => x.Name))}, Number of employees: {NumberOfEmployees}");
+        }
     }
 }

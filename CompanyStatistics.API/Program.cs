@@ -4,6 +4,8 @@ using CompanyStatistics.API.AutofacModules;
 using CompanyStatistics.API.Extensions;
 using CompanyStatistics.Domain.Paths;
 using CompanyStatistics.Domain.Settings;
+using CompanyStatistics.Domain.Validators.Authentication;
+using FluentValidation;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,7 +17,11 @@ builder.Host
         autofacBuilder.RegisterModule<ServicesModule>();
         autofacBuilder.RegisterModule<RepositoriesModule>();
         autofacBuilder.RegisterModule<FactoriesModule>();
+        autofacBuilder.RegisterModule<ProvidersModule>();
     });
+
+builder.Services.AddRouting(options => options.LowercaseUrls = true);
+builder.Services.AddValidatorsFromAssemblyContaining<LoginDtoValidator>();
 
 builder.Services.AddControllers();
 

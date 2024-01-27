@@ -56,7 +56,7 @@ namespace CompanyStatistics.API.Controllers
         }
 
         [HttpGet("group-companies-by-country-and-industry")]
-        public async Task<ActionResult<CompanyResponseDto>> GroupCompaniesByCountryAndIndustryAsync(
+        public async Task<ActionResult<List<CompanyResponseDto>>> GroupCompaniesByCountryAndIndustryAsync(
             [FromQuery] string country = null, [FromQuery] string industry = null)
         {
             if (!_cache.TryGetValue($"group-companies-by-country-and-industry-{country}-{industry}", 
