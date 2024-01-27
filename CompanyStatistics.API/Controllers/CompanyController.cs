@@ -68,7 +68,7 @@ namespace CompanyStatistics.API.Controllers
 
         [HttpPut("{id}")]
         [AuthorizeRoles(Role.Admin, Role.Regular)]
-        public async Task<IActionResult> UpdateAsync([FromRoute] string id, [FromBody] CompanyWithoutIdDto company)
+        public async Task<IActionResult> UpdateAsync([FromRoute] string id, [FromBody] CompanyCreateDto company)
         {
             await _companyService.UpdateAsync(id, company);
 

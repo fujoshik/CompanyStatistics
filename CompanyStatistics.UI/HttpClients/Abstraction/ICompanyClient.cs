@@ -6,7 +6,7 @@ namespace CompanyStatistics.UI.HttpClients.Abstraction
     {
         Task<string> ReadDataAsync();
         Task<string> CreateAsync(CompanyCreateDto company, string bearer);
-        Task<string> UpdateCompanyAsync(string id, CompanyWithoutIdDto company, string bearer);
+        Task<string> UpdateCompanyAsync(string id, CompanyCreateDto company, string bearer);
         Task<string> GetCompanyAsync(string id);
         Task<string> GetPageAsync(int pageNumber, int pageSize);
         Task<string> DeleteAsync(string id, string bearer);

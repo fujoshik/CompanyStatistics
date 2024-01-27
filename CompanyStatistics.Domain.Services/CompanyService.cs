@@ -3,7 +3,6 @@ using CompanyStatistics.Domain.Abstraction.Factories;
 using CompanyStatistics.Domain.Abstraction.Providers;
 using CompanyStatistics.Domain.Abstraction.Repositories;
 using CompanyStatistics.Domain.Abstraction.Services;
-using CompanyStatistics.Domain.DTOs.Authentication;
 using CompanyStatistics.Domain.DTOs.Company;
 using CompanyStatistics.Domain.DTOs.CompanyIndustry;
 using CompanyStatistics.Domain.DTOs.Industry;
@@ -46,11 +45,7 @@ namespace CompanyStatistics.Domain.Services
             await _validationProvider.TryValidateAsync(company);
 
             var companyDto = _mapper.Map<CompanyRequestDto>(company);
-
-            if (companyDto.Id == null)
-            {
-                companyDto.Id = Guid.NewGuid().ToString();
-            }
+            companyDto.Id = Guid.NewGuid().ToString();
 
             await _industryService.CreateIndustryIfNotExistAsync(companyDto);
 
@@ -65,7 +60,7 @@ namespace CompanyStatistics.Domain.Services
             return responseDto;
         }
 
-        public async Task<CompanyResponseDto> UpdateAsync(string id, CompanyWithoutIdDto company)
+        public async Task<CompanyResponseDto> UpdateAsync(string id, CompanyCreateDto company)
         {
             if (company == null)
             {
@@ -74,12 +69,12 @@ namespace CompanyStatistics.Domain.Services
 
             await _validationProvider.TryValidateAsync(company);
 
-            var companyWithoutIndustry = _mapper.Map<CompanyWithoutIndustryDto>(company);
-
             await UpdateCompanyIndustriesAsync(id, company);
 
-            var result = await _unitOfWork.CompanyRepository.UpdateAsync<CompanyWithoutIndustryDto, CompanyWithoutIndustryDto>(
-                id, companyWithoutIndustry);
+            var companyUpdateDto = _mapper.Map<CompanyUpdateDto>(company);
+
+            var result = await _unitOfWork.CompanyRepository.UpdateAsync<CompanyUpdateDto, CompanyWithoutIndustryDto>(
+                id, companyUpdateDto);
 
             var responseDto = await AssignIndustriesAsync(result);
 
@@ -143,13 +138,13 @@ namespace CompanyStatistics.Domain.Services
             return responseDto;
         }
 
-        private async Task UpdateCompanyIndustriesAsync(string id, CompanyWithoutIdDto company)
+        private async Task UpdateCompanyIndustriesAsync(string id, CompanyCreateDto company)
         {
             var industries = await _unitOfWork.CompanyIndustriesRepository.GetIndustriesByCompanyIdAsync(id);
 
-            foreach (var industry in company.Industries)
+            foreach (var industry in industries)
             {
-                if (!industries.Select(x => x.Name).Contains(industry.Name))
+                if (!company.Industries.Select(x => x.Name).Contains(industry.Name))
                 {
                     await _unitOfWork.CompanyIndustriesRepository.DeleteByCompanyIdAndIndustryNameAsync(id, industry.Name);
                 }

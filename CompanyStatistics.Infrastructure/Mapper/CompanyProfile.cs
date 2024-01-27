@@ -19,7 +19,7 @@ namespace CompanyStatistics.Infrastructure.Mapper
 
             CreateMap<Company, CompanyResponseDto>();
 
-            CreateMap<CompanyWithoutIdDto, CompanyWithoutIndustryDto>();
+            CreateMap<CompanyCreateDto, CompanyUpdateDto>();
 
             CreateMap<CompanyWithoutIndustryDto, CompanyResponseDto>();
         }

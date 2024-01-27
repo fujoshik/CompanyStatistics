@@ -1,5 +1,5 @@
-﻿using CompanyStatistics.Domain.DTOs.Company;
-using CompanyStatistics.Domain.DTOs.Industry;
+﻿using CompanyStatistics.UI.Factories;
+using CompanyStatistics.UI.Factories.Abstraction;
 using CompanyStatistics.UI.HttpClients;
 using CompanyStatistics.UI.HttpClients.Abstraction;
 using CompanyStatistics.UI.Menus.Abstraction;
@@ -9,10 +9,12 @@ namespace CompanyStatistics.UI.Menus
     public class CompanyCrudMenu : BaseMenu, ICompanyCrudMenu
     {
         private readonly ICompanyClient _companyClient;
+        private readonly ICompanyFactory _companyFactory;
 
         public CompanyCrudMenu()
         {
             _companyClient = new CompanyClient();
+            _companyFactory = new CompanyFactory();
         }
 
         public async Task CompanyCrudAsync()
@@ -88,20 +90,14 @@ namespace CompanyStatistics.UI.Menus
                 Console.WriteLine(ex.Message);
             }
 
-            Console.Write("Industry name: ");
-            var industry = Console.ReadLine();
+            Console.Write("Industry names: ");
+            var industries = Console.ReadLine();
+
+            var company = _companyFactory.CreateCompanyCreateDto(name, website, description, country, 
+                founded, numOfEmployees, industries);
 
             Console.WriteLine();
-            var result = await _companyClient.CreateAsync(new CompanyCreateDto()
-            {
-                Name = name,
-                Country = country,
-                Description = description,
-                Website = website,
-                Founded = founded,
-                NumberOfEmployees = numOfEmployees,
-                Industries = new List<IndustryRequestDto>() { new IndustryRequestDto() { Name = industry } }
-            }, token);
+            var result = await _companyClient.CreateAsync(company, token);
 
             Console.WriteLine(result);
             Console.WriteLine();
@@ -114,9 +110,6 @@ namespace CompanyStatistics.UI.Menus
 
             Console.Write("Id: ");
             var id = Console.ReadLine();
-
-            Console.Write("Company index: ");
-            var companyIndex = int.Parse(Console.ReadLine());
 
             Console.Write("Name: ");
             var name = Console.ReadLine();
@@ -145,22 +138,14 @@ namespace CompanyStatistics.UI.Menus
                 Console.WriteLine(ex.Message);
             }
 
-            Console.Write("Industry name: ");
-            var industry = Console.ReadLine();
+            Console.Write("Industry names: ");
+            var industries = Console.ReadLine();
+
+            var company = _companyFactory.CreateCompanyCreateDto(name, website, description, country,
+                founded, numOfEmployees, industries);
 
             Console.WriteLine();
-            var result = await _companyClient.UpdateCompanyAsync(id, new CompanyWithoutIdDto()
-            {
-                CompanyIndex = companyIndex,
-                Name = name,
-                Country = country,
-                Description = description,
-                Website = website,
-                Founded = founded,
-                NumberOfEmployees = numOfEmployees,
-                Industries = new List<IndustryRequestDto>() { new IndustryRequestDto() { Name = industry } },
-                IsDeleted = 0
-            }, token);
+            var result = await _companyClient.UpdateCompanyAsync(id, company, token);
 
             Console.WriteLine(result);
             Console.WriteLine();
