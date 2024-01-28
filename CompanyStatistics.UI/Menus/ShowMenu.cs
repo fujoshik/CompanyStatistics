@@ -33,26 +33,31 @@ namespace CompanyStatistics.UI.Menus
         public async Task AuthenticateAsync()
         {
             await _authenticationMenu.AuthenticationOptionsAsync();
+            Console.WriteLine();
         }
 
         public async Task ReadDataAsync()
         {
             await _companyCrudMenu.ReadDataAsync();
+            Console.WriteLine();
         }
 
         public async Task CompanyCrudAsync()
         {
             await _companyCrudMenu.CompanyCrudAsync();
+            Console.WriteLine();
         }
 
         public async Task StatisticsAsync()
         {
             await _statisticsMenu.StatisticsAsync();
+            Console.WriteLine();
         }
 
         public async Task UserCrudAsync()
         {
             await _userCrudMenu.UserCrudAsync();
+            Console.WriteLine();
         }
     }
 }

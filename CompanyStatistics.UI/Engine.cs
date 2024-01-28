@@ -37,7 +37,9 @@ namespace CompanyStatistics.UI
                     case "5":
                         await _showMenu.UserCrudAsync();
                         break;
-                    default:
+                    default: 
+                        Console.WriteLine("There is no such option!");
+                        Console.WriteLine();
                         break;
                 }
 

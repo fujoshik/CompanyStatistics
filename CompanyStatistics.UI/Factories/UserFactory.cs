@@ -5,10 +5,10 @@ namespace CompanyStatistics.UI.Factories
 {
     public class UserFactory : IUserFactory
     {
-        public UserCreateDto CreateUserCreateDto(string firstName, string lastName,
+        public UserCreateWithoutAccountIdDto CreateUserCreateDto(string firstName, string lastName,
             string country, int age)
         {
-            return new UserCreateDto
+            return new UserCreateWithoutAccountIdDto
             {
                 FirstName = firstName,
                 LastName = lastName,

@@ -3,6 +3,7 @@ using CompanyStatistics.Domain.Abstraction.Providers;
 using CompanyStatistics.Domain.Abstraction.Repositories;
 using CompanyStatistics.Domain.Abstraction.Services;
 using CompanyStatistics.Domain.DTOs.Authentication;
+using CompanyStatistics.Domain.DTOs.Company;
 using CompanyStatistics.Domain.DTOs.User;
 using CompanyStatistics.Domain.Pagination;
 
@@ -36,7 +37,22 @@ namespace CompanyStatistics.Domain.Services
             return await _unitOfWork.UserRepository.InsertAsync<UserRequestDto, UserResponseDto>(user);
         }
 
-        public async Task<UserResponseDto> UpdateAsync(string id, UserCreateDto user)
+        public async Task<UserResponseDto> CreateUserAsync(UserCreateDto userCreateDto)
+        {
+            if (userCreateDto == null)
+            {
+                throw new ArgumentNullException(nameof(userCreateDto));
+            }
+
+            await _validationProvider.TryValidateAsync(userCreateDto);
+
+            var userRequest = _mapper.Map<UserRequestDto>(userCreateDto);
+            userRequest.Id = Guid.NewGuid().ToString();
+
+            return await _unitOfWork.UserRepository.InsertAsync<UserRequestDto, UserResponseDto>(userRequest);
+        }
+
+        public async Task<UserResponseDto> UpdateAsync(string id, UserCreateWithoutAccountIdDto user)
         {
             if (user == null)
             {
@@ -45,7 +61,7 @@ namespace CompanyStatistics.Domain.Services
 
             await _validationProvider.TryValidateAsync(user);
 
-            return await _unitOfWork.UserRepository.UpdateAsync<UserCreateDto, UserResponseDto>(id, user);
+            return await _unitOfWork.UserRepository.UpdateAsync<UserCreateWithoutAccountIdDto, UserResponseDto>(id, user);
         }
 
         public async Task<UserResponseDto> GetByIdAsync(string id)

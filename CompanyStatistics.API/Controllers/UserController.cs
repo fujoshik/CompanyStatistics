@@ -19,6 +19,14 @@ namespace CompanyStatistics.API.Controllers
             _userService = userService;
         }
 
+        [HttpPost]
+        public async Task<IActionResult> CreateAsync([FromBody] UserCreateDto user)
+        {
+            await _userService.CreateUserAsync(user);
+
+            return Ok();
+        }
+
         [HttpGet("{id}")]
         [ActionName(nameof(GetByIdAsync))]
         public async Task<ActionResult<UserResponseDto>> GetByIdAsync([FromRoute] string id)
@@ -38,7 +46,7 @@ namespace CompanyStatistics.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAsync([FromRoute] string id, [FromBody] UserCreateDto user)
+        public async Task<IActionResult> UpdateAsync([FromRoute] string id, [FromBody] UserCreateWithoutAccountIdDto user)
         {
             await _userService.UpdateAsync(id, user);
 

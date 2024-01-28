@@ -9,7 +9,10 @@ namespace CompanyStatistics.Infrastructure.Mapper
         public UserProfile()
         {
             CreateMap<RegisterDto, UserRequestDto>();
+
             CreateMap<UserWithoutIdDto, UserRequestDto>();
+
+            CreateMap<UserCreateDto, UserRequestDto>();
         }
     }
 }

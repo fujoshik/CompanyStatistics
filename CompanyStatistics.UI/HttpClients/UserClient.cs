@@ -17,7 +17,7 @@ namespace CompanyStatistics.UI.HttpClients
             return (int)response.StatusCode + " " + response.ReasonPhrase;
         }
 
-        public async Task<string> UpdateAsync(string id, UserCreateDto user, string bearer)
+        public async Task<string> UpdateAsync(string id, UserCreateWithoutAccountIdDto user, string bearer)
         {
             AddAuthorizationHeader(bearer);
 
