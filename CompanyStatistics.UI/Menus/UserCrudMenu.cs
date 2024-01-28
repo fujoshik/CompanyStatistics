@@ -120,11 +120,8 @@ namespace CompanyStatistics.UI.Menus
                 Console.WriteLine(ex.Message);
             }
 
-            Console.Write("Account Id: ");
-            var accountId = Console.ReadLine();
-
-            var user = _userFactory.CreateUserRequestDto(firstName, lastName, country,
-                age, accountId);
+            var user = _userFactory.CreateUserCreateDto(firstName, lastName, country,
+                age);
 
             Console.WriteLine();
             var result = await _userClient.UpdateAsync(id, user, token);
@@ -135,11 +132,14 @@ namespace CompanyStatistics.UI.Menus
 
         private async Task GetByIdAsync()
         {
+            var token = GetToken();
+            Console.WriteLine();
+
             Console.Write("Id: ");
             var id = Console.ReadLine();
 
             Console.WriteLine();
-            var result = await _userClient.GetUserAsync(id);
+            var result = await _userClient.GetUserAsync(id, token);
 
             Console.WriteLine(result);
             Console.WriteLine();
@@ -147,6 +147,9 @@ namespace CompanyStatistics.UI.Menus
 
         private async Task GetPageAsync()
         {
+            var token = GetToken();
+            Console.WriteLine();
+
             int pageNum = 0, pageSize = 0;
 
             try
@@ -163,7 +166,7 @@ namespace CompanyStatistics.UI.Menus
             }
 
             Console.WriteLine();
-            var result = await _userClient.GetPageAsync(pageNum, pageSize);
+            var result = await _userClient.GetPageAsync(pageNum, pageSize, token);
 
             Console.WriteLine(result);
             Console.WriteLine();

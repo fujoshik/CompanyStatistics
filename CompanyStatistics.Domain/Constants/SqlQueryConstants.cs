@@ -34,6 +34,8 @@
 
         public const string DELETE_COMPANY_INDUSTRIES_BY_COMPANYID = $@"{USE_COMPANYSTATISTICSDB} DELETE FROM Company_Industries WHERE CompanyId = @Id";
 
+        public const string DELETE_ACCOUNT_BY_ID = $@"{USE_COMPANYSTATISTICSDB} UPDATE Accounts SET IsDeleted = 1 WHERE Id = @Id";
+
         public const string DELETE_COMPANY_INDUSTRIES_BY_ID_AND_NAME = $@"{USE_COMPANYSTATISTICSDB} DELETE FROM Company_Industries WHERE CompanyId = @Id AND IndustryName = @Name";
     }
 }

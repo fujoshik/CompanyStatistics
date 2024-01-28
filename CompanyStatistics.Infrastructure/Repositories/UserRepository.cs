@@ -1,6 +1,8 @@
 ﻿using CompanyStatistics.Domain.Abstraction.Repositories;
+using CompanyStatistics.Domain.Constants;
 using CompanyStatistics.Domain.DTOs.User;
 using CompanyStatistics.Infrastructure.Entities;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using System.Data;
 
@@ -28,6 +30,21 @@ namespace CompanyStatistics.Infrastructure.Repositories
             };
 
             return (TOutput)Convert.ChangeType(result, typeof(TOutput));
+        }
+
+        public async Task DeleteUserAsync(string id)
+        {
+            var user = await GetByIdAsync<UserResponseDto>(id);
+
+            using (var connection = new SqlConnection(_dbConnectionString))
+            {
+                connection.Open();
+                SqlCommand cmd = new SqlCommand(SqlQueryConstants.DELETE_ACCOUNT_BY_ID, connection);
+                cmd.Parameters.Add(new SqlParameter("@Id", user.AccountId));
+                await cmd.ExecuteNonQueryAsync();
+            }
+
+            await base.DeleteAsync(id);
         }
     }
 }

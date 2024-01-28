@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace CompanyStatistics.Domain.Validators.User
 {
-    public class UserWithoutIdDtoValidator : AbstractValidator<UserWithoutIdDto>
+    public class UserCreateDtoValidator : AbstractValidator<UserCreateDto>
     {
-        public UserWithoutIdDtoValidator()
+        public UserCreateDtoValidator()
         {
             RuleFor(x => x.FirstName).NotEmpty();
 

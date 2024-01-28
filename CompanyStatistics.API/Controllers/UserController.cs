@@ -38,7 +38,7 @@ namespace CompanyStatistics.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAsync([FromRoute] string id, [FromBody] UserWithoutIdDto user)
+        public async Task<IActionResult> UpdateAsync([FromRoute] string id, [FromBody] UserCreateDto user)
         {
             await _userService.UpdateAsync(id, user);
 

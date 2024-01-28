@@ -17,17 +17,19 @@ namespace CompanyStatistics.UI.HttpClients
             return (int)response.StatusCode + " " + response.ReasonPhrase;
         }
 
-        public async Task<string> UpdateAsync(string id, UserRequestDto company, string bearer)
+        public async Task<string> UpdateAsync(string id, UserCreateDto user, string bearer)
         {
             AddAuthorizationHeader(bearer);
 
-            var response = await _httpClient.PutAsJsonAsync(UrlConstants.GET_USER_URL + id, company);
+            var response = await _httpClient.PutAsJsonAsync(UrlConstants.GET_USER_URL + id, user);
 
             return (int)response.StatusCode + " " + response.ReasonPhrase;
         }
 
-        public async Task<string> GetUserAsync(string id)
+        public async Task<string> GetUserAsync(string id, string bearer)
         {
+            AddAuthorizationHeader(bearer);
+
             var response = await _httpClient.GetAsync(UrlConstants.GET_USER_URL + id);
 
             if (!response.IsSuccessStatusCode)
@@ -40,8 +42,10 @@ namespace CompanyStatistics.UI.HttpClients
             return result.ToString();
         }
 
-        public async Task<string> GetPageAsync(int pageNumber, int pageSize)
+        public async Task<string> GetPageAsync(int pageNumber, int pageSize, string bearer)
         {
+            AddAuthorizationHeader(bearer);
+
             var query = $"?PageNumber={pageNumber}&PageSize={pageSize}";
 
             var getRoute = UrlConstants.GET_USER_URL + query;

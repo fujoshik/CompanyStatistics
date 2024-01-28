@@ -36,7 +36,7 @@ namespace CompanyStatistics.Domain.Services
             return await _unitOfWork.UserRepository.InsertAsync<UserRequestDto, UserResponseDto>(user);
         }
 
-        public async Task<UserResponseDto> UpdateAsync(string id, UserWithoutIdDto user)
+        public async Task<UserResponseDto> UpdateAsync(string id, UserCreateDto user)
         {
             if (user == null)
             {
@@ -45,9 +45,7 @@ namespace CompanyStatistics.Domain.Services
 
             await _validationProvider.TryValidateAsync(user);
 
-            var userRequestDto = _mapper.Map<UserRequestDto>(user);
-
-            return await _unitOfWork.UserRepository.UpdateAsync<UserRequestDto, UserResponseDto>(id, userRequestDto);
+            return await _unitOfWork.UserRepository.UpdateAsync<UserCreateDto, UserResponseDto>(id, user);
         }
 
         public async Task<UserResponseDto> GetByIdAsync(string id)
@@ -72,7 +70,7 @@ namespace CompanyStatistics.Domain.Services
                 throw new ArgumentNullException(nameof(id));
             }
 
-            await _unitOfWork.UserRepository.DeleteAsync(id);
+            await _unitOfWork.UserRepository.DeleteUserAsync(id);
         }
     }
 }
