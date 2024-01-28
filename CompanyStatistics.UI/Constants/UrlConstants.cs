@@ -10,6 +10,8 @@
 
         public const string GET_COMPANY_URL = $"{BASE_URL}companies/";
 
+        public const string GET_USER_URL = $"{BASE_URL}users/";
+
         public const string READ_DATA_URL = $"{GET_COMPANY_URL}read-data/";
 
         public const string COUNT_EMPLOYEES_BY_INDUSTRY_URL = $"{BASE_URL}statistics/employee-count-by-industry";

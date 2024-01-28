@@ -7,5 +7,6 @@
         Task ReadDataAsync();
         Task CompanyCrudAsync();
         Task StatisticsAsync();
+        Task UserCrudAsync();
     }
 }

@@ -34,6 +34,9 @@ namespace CompanyStatistics.UI
                     case "4":
                         await _showMenu.StatisticsAsync();
                         break;
+                    case "5":
+                        await _showMenu.UserCrudAsync();
+                        break;
                     default:
                         break;
                 }

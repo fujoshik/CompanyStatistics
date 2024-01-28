@@ -7,12 +7,14 @@ namespace CompanyStatistics.UI.Menus
         private readonly IAuthenticationMenu _authenticationMenu;
         private readonly ICompanyCrudMenu _companyCrudMenu;
         private readonly IStatisticsMenu _statisticsMenu;
+        private readonly IUserCrudMenu _userCrudMenu;
 
         public ShowMenu()
         {
             _authenticationMenu = new AuthenticationMenu();
             _companyCrudMenu = new CompanyCrudMenu();
             _statisticsMenu = new StatisticsMenu();
+            _userCrudMenu = new UserCrudMenu();
         }
 
         public void MainMenu()
@@ -22,6 +24,7 @@ namespace CompanyStatistics.UI.Menus
             Console.WriteLine("2. Read data");
             Console.WriteLine("3. CRUD for companies");
             Console.WriteLine("4. Statistics for companies");
+            Console.WriteLine("5. CRUD for users");
 
             Console.WriteLine("Please choose an option (write the number)");
             Console.WriteLine();
@@ -45,6 +48,11 @@ namespace CompanyStatistics.UI.Menus
         public async Task StatisticsAsync()
         {
             await _statisticsMenu.StatisticsAsync();
+        }
+
+        public async Task UserCrudAsync()
+        {
+            await _userCrudMenu.UserCrudAsync();
         }
     }
 }
