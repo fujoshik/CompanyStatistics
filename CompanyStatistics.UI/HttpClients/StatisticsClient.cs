@@ -1,6 +1,7 @@
 ﻿using CompanyStatistics.Domain.DTOs.Company;
 using CompanyStatistics.UI.Constants;
 using CompanyStatistics.UI.HttpClients.Abstraction;
+using Quartz.Util;
 using System.Net.Http.Json;
 
 namespace CompanyStatistics.UI.HttpClients
@@ -32,13 +33,27 @@ namespace CompanyStatistics.UI.HttpClients
                 return (int)response.StatusCode + " " + response.ReasonPhrase;
             }
 
-            var result = await response.Content.ReadFromJsonAsync<CompanyResponseDto>();
-            return result.ToString();
+            var result = await response.Content.ReadFromJsonAsync<List<CompanyResponseDto>>();
+
+            return string.Join("", result);
         }
 
         public async Task<string> GroupCompaniesByCountryAndIndustryAsync(string country = null, string industry = null)
         {
-            var route = UrlConstants.GET_TOP_N_COMPANIES_BY_EMPLOYEE_COUNT_URL + $"?country={country}&industry={industry}";
+            string route;
+
+            if (!country.IsNullOrWhiteSpace() && !industry.IsNullOrWhiteSpace())
+            {
+                route = UrlConstants.GROUP_COMPANIES_BY_COUNTRY_AND_INDUSTRY_URL + $"?country={country}&industry={industry}";
+            }
+            else if (!country.IsNullOrWhiteSpace())
+            {
+                route = UrlConstants.GROUP_COMPANIES_BY_COUNTRY_AND_INDUSTRY_URL + $"?country={country}";
+            }
+            else
+            {
+                route = UrlConstants.GROUP_COMPANIES_BY_COUNTRY_AND_INDUSTRY_URL + $"?industry={industry}";
+            }
 
             var response = await _httpClient.GetAsync(route);
 
@@ -49,7 +64,7 @@ namespace CompanyStatistics.UI.HttpClients
 
             var result = await response.Content.ReadFromJsonAsync<List<CompanyResponseDto>>();
 
-            return string.Join("; ", result);
+            return string.Join("", result);
         }
 
         public async Task<string> GeneratePdfAsync(string companyName, string bearer)
